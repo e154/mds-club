@@ -55,4 +55,5 @@ static_source/bower_components
 *.a
 *.deb
 /db/mds.db
+/mds
 moc_*.cpp

@@ -33,9 +33,7 @@ func (b *Book) Save() (int64, error) {
 
 func (b *Book) Update() error {
 
-
-
-	return  err
+	return  nil
 }
 
 func BookGetById(id int64) (book *Book, err error) {
