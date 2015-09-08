@@ -41,4 +41,7 @@ func init() {
 	var err error
 	db, err = sql.Open("sqlite3", "./db/mds.db")
 	checkErr(err)
+
+	// todo close
+//	db.Close()
 }

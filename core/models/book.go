@@ -7,19 +7,38 @@ import (
 )
 
 type Book struct {
-	Id			int			`json: "id"`
+	Id			int64		`json: "id"`
 	Name 		string		`json: "name"`
-	Author_id	int			`json: "author_id"`
-	Station_id	int			`json: "station_id"`
+	Author_id	int64		`json: "author_id"`
+	Station_id	int64		`json: "station_id"`
 	Datetime	time.Time	`json: "datetime"`
 }
 
-func (b *Book) Save() (id int, err error) {
+func (b *Book) Save() (int64, error) {
 
-	return
+	stmt, err := db.Prepare("INSERT INTO book(author_id, name, datetime, station_id) values(?,?,?,?)")
+	if err != nil {
+		return 0, err
+	}
+
+	res, err := stmt.Exec(b.Author_id, b.Name, b.Datetime, b.Station_id)
+	if err != nil {
+		return 0, err
+	}
+
+	b.Id, err = res.LastInsertId()
+
+	return b.Id, err
 }
 
-func BookGetById(id int) (book *Book, err error) {
+func (b *Book) Update() error {
+
+
+
+	return  err
+}
+
+func BookGetById(id int64) (book *Book, err error) {
 
 	return
 }
