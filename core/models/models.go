@@ -17,28 +17,6 @@ func checkErr(err error) {
 	}
 }
 
-func Run() {
-
-	if db == nil {
-		return
-	}
-
-	ResetDb()
-
-//	res, err := AuthorAddNew("Джером К. Джером")
-//	checkErr(err)
-//
-//	if res != nil {}
-
-//	res, err := AuthorGet("Джером К. Джером")
-//	checkErr(err)
-//
-//	if res != nil {
-//
-//
-//	}
-}
-
 func init() {
 	var err error
 	db, err = sql.Open("sqlite3", "./db/mds.db")
