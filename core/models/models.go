@@ -23,18 +23,20 @@ func Run() {
 		return
 	}
 
+	ResetDb()
+
 //	res, err := AuthorAddNew("Джером К. Джером")
 //	checkErr(err)
 //
 //	if res != nil {}
 
-	res, err := AuthorGet("Джером К. Джером")
-	checkErr(err)
-
-	if res != nil {
-
-
-	}
+//	res, err := AuthorGet("Джером К. Джером")
+//	checkErr(err)
+//
+//	if res != nil {
+//
+//
+//	}
 }
 
 func init() {
