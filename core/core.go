@@ -1,10 +1,11 @@
 package core
 
 import (
-	"./models"
+	_ "./models"
+	"./parser"
 )
 
 func Run() {
 
-	models.Run()
+	parser.Run()
 }
