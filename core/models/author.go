@@ -13,24 +13,18 @@ type Author struct  {
 	Name	string		`json: "name"`
 }
 
-func (a *Author) Save() (int64, error) {
+func (a *Author) Save() (id int64, err error) {
 
 	stmt, err := db.Prepare("INSERT INTO author(name) values(?)")
-	if err != nil {
-		return 0, err
-	}
+	checkErr(err)
 
 	res, err := stmt.Exec(a.Name)
-	if err != nil {
-		return 0, err
-	}
+	checkErr(err)
 
-	id, err := res.LastInsertId()
-
-	return id, err
+	return res.LastInsertId()
 }
 
-func (a *Author) Update() (error) {
+func (a *Author) Update() (err error) {
 
 	stmt, err := db.Prepare("UPDATE author SET name=? where id=?")
 	checkErr(err)
@@ -40,7 +34,7 @@ func (a *Author) Update() (error) {
 
 	_, err = res.RowsAffected()
 
-	return  err
+	return
 }
 
 func (a *Author) AddBook(b *Book) (int64, error) {
@@ -50,7 +44,7 @@ func (a *Author) AddBook(b *Book) (int64, error) {
 }
 
 func (a *Author) Remove() error {
-	return Remove(a.Id)
+	return AuthorRemove(a.Id)
 }
 
 func AuthorGet(val interface{}) (author *Author, err error) {
@@ -99,7 +93,7 @@ func AuthorGet(val interface{}) (author *Author, err error) {
 	return
 }
 
-func Remove(id int64) error {
+func AuthorRemove(id int64) (err error) {
 
 	stmt, err := db.Prepare("DELETE FROM author WHERE id=?")
 	checkErr(err)
@@ -109,5 +103,27 @@ func Remove(id int64) error {
 
 	_, err = res.RowsAffected()
 
-	return err
+	return
+}
+
+func AuthorGetAll() (authors []*Author, err error) {
+
+	rows, err := db.Query("SELECT * FROM author")
+	if err != nil {
+		return
+	}
+
+	authors = make([]*Author, 0)	//[]
+
+	for rows.Next() {
+		author := new(Author)
+		err = rows.Scan(&author.Id, &author.Name)
+		if err != nil {
+			return
+		}
+
+		authors = append(authors, author)
+	}
+
+	return
 }

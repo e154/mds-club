@@ -13,7 +13,7 @@ var (
 func checkErr(err error) {
 	if err != nil {
 		fmt.Printf("error: %s\n", err.Error())
-//		return
+		return
 	}
 }
 

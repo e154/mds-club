@@ -7,8 +7,45 @@ type Station struct {
 	Name 		string		`json: "name"`
 }
 
-func (s *Station) Save() {
+func (s *Station) Save() (id int64, err error) {
 
+	stmt, err := db.Prepare("INSERT INTO station(name) values(?)")
+	checkErr(err)
+
+	res, err := stmt.Exec(s.Name)
+	checkErr(err)
+
+	return res.LastInsertId()
+}
+
+func (s *Station) Update() (err error) {
+
+	stmt, err := db.Prepare("UPDATE station SET name=? where id=?")
+	checkErr(err)
+
+	res, err := stmt.Exec(s.Name, s.Id)
+	checkErr(err)
+
+	_, err = res.RowsAffected()
+
+	return
+}
+
+func (s *Station) Remove() (err error) {
+	return StationRemove(s.Id)
+}
+
+func StationRemove(id int64) (err error) {
+
+	stmt, err := db.Prepare("DELETE FROM station WHERE id=?")
+	checkErr(err)
+
+	res, err := stmt.Exec(id)
+	checkErr(err)
+
+	_, err = res.RowsAffected()
+
+	return
 }
 
 func StationGetById(id int) (station *Station, err error) {

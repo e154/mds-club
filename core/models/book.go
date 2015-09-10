@@ -17,26 +17,48 @@ type Book struct {
 func (b *Book) Save() (int64, error) {
 
 	stmt, err := db.Prepare("INSERT INTO book(author_id, name, datetime, station_id) values(?,?,?,?)")
-	if err != nil {
-		return 0, err
-	}
+	checkErr(err)
 
 	res, err := stmt.Exec(b.Author_id, b.Name, b.Datetime, b.Station_id)
-	if err != nil {
-		return 0, err
-	}
+	checkErr(err)
 
 	b.Id, err = res.LastInsertId()
 
 	return b.Id, err
 }
 
-func (b *Book) Update() error {
+func (b *Book) Update() (err error) {
 
-	return  nil
+	stmt, err := db.Prepare("UPDATE book SET name=? where id=?")
+	checkErr(err)
+
+	res, err := stmt.Exec(b.Name, b.Id)
+	checkErr(err)
+
+	_, err = res.RowsAffected()
+
+	return
 }
 
-func BookGetById(id int64) (book *Book, err error) {
+func (b *Book) AddFile(file *File) (err error) {
+
+	file.Book_id = b.Id
+	return file.Update()
+}
+
+func (b *Book) Remove() (err error) {
+	return BookRemove(b.Id)
+}
+
+func BookRemove(id int64) (err error) {
+
+	stmt, err := db.Prepare("DELETE FROM book WHERE id=?")
+	checkErr(err)
+
+	res, err := stmt.Exec(id)
+	checkErr(err)
+
+	_, err = res.RowsAffected()
 
 	return
 }
