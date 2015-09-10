@@ -72,7 +72,7 @@ func FileGetAll() (files []*File, err error) {
 	return
 }
 
-func FileGetAllByBook(book *Book) (files *File, err error) {
+func FileGetAllByBook(book *Book) (files []*File, err error) {
 
 	files = make([]*File, 0)	//[]
 
