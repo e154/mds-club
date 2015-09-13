@@ -25,7 +25,15 @@ func (s *Station) Save() (id int64, err error) {
 		return
 	}
 
-	return res.LastInsertId()
+	id, err = res.LastInsertId()
+	if err != nil {
+		checkErr(err)
+		return
+	}
+
+	s.Id = id
+
+	return
 }
 
 func (s *Station) Update() (err error) {
@@ -116,9 +124,6 @@ func StationGet(val interface{}) (station *Station, err error) {
 				station.Id = id
 			}
 		}
-
-	default:
-		break
 	}
 
 	return

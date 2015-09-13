@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	"reflect"
-	"errors"
 )
 
 type Author struct  {
@@ -28,7 +27,15 @@ func (a *Author) Save() (id int64, err error) {
 		return
 	}
 
-	return res.LastInsertId()
+	id, err = res.LastInsertId()
+	if err != nil {
+		checkErr(err)
+		return
+	}
+
+	a.Id = id
+
+	return
 }
 
 func (a *Author) Update() (err error) {
@@ -52,6 +59,8 @@ func (a *Author) Update() (err error) {
 }
 
 func (a *Author) AddBook(b *Book) error {
+
+	fmt.Printf("%s - assign book: %s\n", a.Name, b.Name)
 
 	b.Author_id = a.Id
 	return  b.Update()
@@ -79,7 +88,7 @@ func AuthorGet(val interface{}) (author *Author, err error) {
 	case "int64":
 		id := val.(int64)
 		author.Id = id
-		rows, err = db.Query(fmt.Sprintf("SELECT name FROM author WHERE id=%d LIMIT 1", id))
+		rows, err = db.Query(fmt.Sprintf(`SELECT name FROM author WHERE id=%d LIMIT 1`, id))
 		if err != nil {
 			checkErr(err)
 			return
@@ -98,7 +107,7 @@ func AuthorGet(val interface{}) (author *Author, err error) {
 	case "string":
 		name := val.(string)
 		author.Name = name
-		rows, err = db.Query(fmt.Sprintf("SELECT id FROM author WHERE name='%s' LIMIT 1", name))
+		rows, err = db.Query(fmt.Sprintf(`SELECT id FROM author WHERE name="%s" LIMIT 1`, name))
 		if err != nil {
 			checkErr(err)
 			return
@@ -114,10 +123,6 @@ func AuthorGet(val interface{}) (author *Author, err error) {
 			}
 		}
 
-	}
-
-	if author.Id == 0 {
-		err = errors.New(fmt.Sprintf("not found authorname: %s\n", author.Name))
 	}
 
 	return

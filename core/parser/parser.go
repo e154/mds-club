@@ -14,12 +14,14 @@ const (
 	URL = "http://mds-club.ru/cgi-bin/index.cgi?r=84&lang=rus"
 	AGENT = "Mozilla/5.0 (Winxp; Windows x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.85 Safari/537.36"
 	SLEEP = 200
+	START_FROM = 0
 )
 
 var (
-	total_elements int = 1312
+	total_elements int = 0
 	current_element int
 	StatusChan chan int
+	ErrorChan chan error
 )
 
 type Element struct {
@@ -33,7 +35,7 @@ type Element struct {
 
 func checkErr(err error) {
 	if err != nil {
-		fmt.Printf("error: %s\n", err.Error())
+		ErrorChan <- err
 		return
 	}
 }
@@ -124,12 +126,29 @@ func parseDate(val string) (time.Time, error) {
 	return time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC), nil
 }
 
-func scanCatalog(url string) {
+func scanCatalog(url string) error {
 
-	page, _ := getDocument(url)
-	elements, _ := getElementsFromPage(page)
+	page, err := getDocument(url)
+	if err != nil {
+		checkErr(err)
+		return err
+	}
+
+	elements, err := getElementsFromPage(page)
+	if err != nil {
+		checkErr(err)
+		return err
+	}
 
 	for _, element := range elements {
+
+		current_element += 1
+		StatusChan <- current_element
+
+		if START_FROM != 0 && current_element < START_FROM {
+			time.Sleep(time.Millisecond * 100)
+			continue
+		}
 
 		if element.Url != "" {
 			element_page, _ := getDocument(element.Url)
@@ -137,44 +156,70 @@ func scanCatalog(url string) {
 		}
 
 		// save author
-		author, _ := models.AuthorGet(element.Author)
-		if author.Id == 0 {
-			author = &models.Author{Name:element.Author}
+		// ----------------------------------------------------
+		author, err := models.AuthorGet(element.Author)
+		if err != nil || author.Id == 0 {
+			author.Name = element.Author
 			author.Save()
 		}
 
+		if author.Id == 0 {
+			err = fmt.Errorf("author not init: %s\n", author.Name)
+			checkErr(err)
+			return err
+		}
+
 		// station
-		station, _ := models.StationGet(element.Station)
-		if station.Id == 0 {
-			station = &models.Station{Name:element.Station}
+		// ----------------------------------------------------
+		station, err := models.StationGet(element.Station)
+		if err != nil || station.Id == 0 {
+			station.Name = element.Station
 			station.Save()
 		}
 
-		// book
-		book, _ := models.BookGet(element.Book)
-		if book.Id == 0 {
-			date, err := parseDate(element.Date)
-			if err == nil {
-				book = &models.Book{Name:element.Book, Station_id:station.Id, Author_id:author.Id, Date:date}
-			} else {
-				book = &models.Book{Name:element.Book, Station_id:station.Id, Author_id:author.Id}
-			}
-			book.Save()
+		if station.Id == 0 {
+			err = fmt.Errorf("station not init: %s\n", station.Name)
+			checkErr(err)
+			return err
+		}
 
-		} else {
+		// book
+		// ----------------------------------------------------
+		book, err := models.BookGet(element.Book)
+		if err != nil || book.Id == 0 {
+
+			book.Name = element.Book
 			book.Station_id = station.Id
+			book.Author_id = author.Id
+
 			date, err := parseDate(element.Date)
 			if err == nil {
 				book.Date = date
 			}
-			book.Update()
+
+			book.Save()
+
+		} else {
 
 			if assigned := author.IsAssigned(book); !assigned {
 				author.AddBook(book)
 			}
 		}
 
+		if book.Author_id == 0 {
+			err = fmt.Errorf("book not assigned to author: %s\n", author.Name)
+			checkErr(err)
+			return err
+		}
+
+		if book.Id == 0 {
+			err = fmt.Errorf("book not init: %s\n", book.Name)
+			checkErr(err)
+			return err
+		}
+
 		// save files
+		// ----------------------------------------------------
 		for _, file := range element.Files {
 
 			if file_id, _ := models.FileExist(file.Name, file.Url); file_id != 0 {
@@ -189,16 +234,17 @@ func scanCatalog(url string) {
 			}
 		}
 
-		current_element += 1
-
-		StatusChan <- current_element
 		time.Sleep( time.Duration(SLEEP) * time.Millisecond)
 	}
 
 	next_url, b := getNextUrl(page)
 	if b {
-		scanCatalog(next_url)
+		if err := scanCatalog(next_url); err != nil {
+			return err
+		}
 	}
+
+	return nil
 }
 
 func GetTotalElements(url string) (int, error) {
@@ -246,18 +292,20 @@ func Run() {
 			select {
 			case current := <- StatusChan:
 				fmt.Printf("%d/%d\n", total, current)
+			case err := <- ErrorChan:
+				fmt.Printf("error: %s", err.Error())
 			}
 
-			time.Sleep(time.Millisecond * 200)
 		}
 	}()
 
 	current_element = 0
-	scanCatalog(URL)
+	go scanCatalog(URL)
 
-//	for {}
+	for {}
 }
 
 func init() {
-	StatusChan = make(chan int, 99)
+	StatusChan = make(chan int, 1024)
+	ErrorChan = make(chan error, 1024)
 }

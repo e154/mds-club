@@ -4,8 +4,6 @@ import (
 	"time"
 	"reflect"
 	"fmt"
-	"errors"
-	"html"
 )
 
 type Book struct {
@@ -25,7 +23,7 @@ func (b *Book) Save() (int64, error) {
 	}
 	defer stmt.Close()
 
-	res, err := stmt.Exec(b.Author_id, strConv(b.Name), b.Date, b.Station_id)
+	res, err := stmt.Exec(b.Author_id, b.Name, b.Date, b.Station_id)
 	if err != nil {
 		checkErr(err)
 		return 0, err
@@ -38,8 +36,11 @@ func (b *Book) Save() (int64, error) {
 
 func (b *Book) Update() (err error) {
 
-	_, err = db.Exec(fmt.Sprintf("UPDATE book SET author_id=%d, date='%s', name='%s', station_id=%d WHERE id=%d", b.Author_id, b.Date, strConv(b.Name), b.Station_id,  b.Id))
-	checkErr(err)
+	_, err = db.Exec(fmt.Sprintf(`UPDATE book SET author_id=%d, date=%s, name="%s", station_id=%d WHERE id=%d`, b.Author_id, b.Date, b.Name, b.Station_id,  b.Id))
+	if err != nil {
+		checkErr(err)
+		return
+	}
 
 	return
 }
@@ -70,7 +71,7 @@ func (b *Book) Files() ([]*File, error) {
 
 func BookRemove(id int64) (err error) {
 
-	stmt, err := db.Prepare("DELETE FROM book WHERE id=?")
+	stmt, err := db.Prepare(`DELETE FROM book WHERE id=?`)
 	if err != nil {
 		checkErr(err)
 		return
@@ -97,7 +98,7 @@ func BookGet(val interface{}) (book *Book, err error) {
 	case "int64":
 		id := val.(int64)
 		book.Id = id
-		rows, err := db.Query(fmt.Sprintf("SELECT * FROM book WHERE id=%d LIMIT 1", id))
+		rows, err := db.Query(fmt.Sprintf(`SELECT * FROM book WHERE id=%d LIMIT 1`, id))
 		if err != nil {
 			checkErr(err)
 			return nil, err
@@ -115,7 +116,7 @@ func BookGet(val interface{}) (book *Book, err error) {
 	case "string":
 		name := val.(string)
 		book.Name = name
-		rows, err := db.Query(fmt.Sprintf("SELECT * FROM book WHERE name='%s' LIMIT 1", strConv(name)))
+		rows, err := db.Query(fmt.Sprintf(`SELECT * FROM book WHERE name="%s" LIMIT 1`, name))
 		if err != nil {
 			checkErr(err)
 			return nil, err
@@ -129,10 +130,6 @@ func BookGet(val interface{}) (book *Book, err error) {
 			}
 		}
 
-	}
-
-	if book.Id == 0 {
-		err = errors.New(fmt.Sprintf("book not found: %s", book.Name))
 	}
 
 	return
@@ -156,7 +153,7 @@ func getAllByAuthor(author *Author) (books []*Book, err error) {
 
 	books = make([]*Book, 0)	//[]
 
-	rows, err := db.Query(fmt.Sprintf("SELECT * FROM book WHERE author_id=%d", author.Id))
+	rows, err := db.Query(fmt.Sprintf(`SELECT * FROM book WHERE author_id=%d`, author.Id))
 	if err != nil {
 		checkErr(err)
 		return
@@ -179,7 +176,7 @@ func getAllByStation(station *Station) (books []*Book, err error) {
 
 	books = make([]*Book, 0)	//[]
 
-	rows, err := db.Query(fmt.Sprintf("SELECT * FROM book WHERE station_id=%d", station.Id))
+	rows, err := db.Query(fmt.Sprintf(`SELECT * FROM book WHERE station_id=%d`, station.Id))
 	if err != nil {
 		checkErr(err)
 		return
@@ -196,8 +193,4 @@ func getAllByStation(station *Station) (books []*Book, err error) {
 	}
 
 	return
-}
-
-func strConv(s string) string {
-	return html.EscapeString(s)
 }

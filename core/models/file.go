@@ -11,7 +11,7 @@ type File struct {
 
 func (f *File) Save() (id int64, err error) {
 
-	stmt, err := db.Prepare("INSERT INTO file(book_id, name, size, url) values(?,?,?,?)")
+	stmt, err := db.Prepare(`INSERT INTO file(book_id, name, size, url) values(?,?,?,?)`)
 	if err != nil {
 		checkErr(err)
 		return
@@ -32,7 +32,7 @@ func (f *File) Save() (id int64, err error) {
 
 func (f *File) Update() (err error) {
 
-	_, err = db.Exec(fmt.Sprintf("UPDATE file SET book_id=%d, name='%s', size='%s', url='%s' WHERE id=%d", f.Book_id, f.Name, f.Size, f.Url, f.Id))
+	_, err = db.Exec(fmt.Sprintf(`UPDATE file SET book_id=%d, name="%s", size="%s", url="%s" WHERE id=%d`, f.Book_id, f.Name, f.Size, f.Url, f.Id))
 	checkErr(err)
 
 	return

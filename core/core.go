@@ -1,11 +1,12 @@
 package core
 
 import (
-	_ "./models"
+	"./models"
 	"./parser"
 )
 
 func Run() {
 
+	models.ResetDb()
 	parser.Run()
 }
