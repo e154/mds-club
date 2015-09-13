@@ -96,11 +96,8 @@ func AuthorGet(val interface{}) (author *Author, err error) {
 		defer rows.Close()
 
 		for rows.Next() {
-
 			if rows != nil {
-				var name string
-				rows.Scan(&name)
-				author.Name = name
+				rows.Scan(&author.Name)
 			}
 		}
 
@@ -115,11 +112,8 @@ func AuthorGet(val interface{}) (author *Author, err error) {
 		defer rows.Close()
 
 		for rows.Next() {
-
 			if rows != nil {
-				var id int64
-				rows.Scan(&id)
-				author.Id = id
+				rows.Scan(&author.Id)
 			}
 		}
 

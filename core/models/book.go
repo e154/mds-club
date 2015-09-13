@@ -96,9 +96,8 @@ func BookGet(val interface{}) (book *Book, err error) {
 	switch reflect.TypeOf(val).Name() {
 
 	case "int64":
-		id := val.(int64)
-		book.Id = id
-		rows, err := db.Query(fmt.Sprintf(`SELECT * FROM book WHERE id=%d LIMIT 1`, id))
+		book.Id = val.(int64)
+		rows, err := db.Query(fmt.Sprintf(`SELECT * FROM book WHERE id=%d LIMIT 1`, book.Id))
 		if err != nil {
 			checkErr(err)
 			return nil, err
@@ -106,17 +105,14 @@ func BookGet(val interface{}) (book *Book, err error) {
 		defer rows.Close()
 
 		for rows.Next() {
-
 			if rows != nil {
-				rows.Scan(&book.Id, &book.Name, &book.Author_id, &book.Station_id, &book.Date)
-				book.Id = id
+				rows.Scan(&book.Id, &book.Author_id, &book.Name, &book.Date, &book.Station_id)
 			}
 		}
 
 	case "string":
-		name := val.(string)
-		book.Name = name
-		rows, err := db.Query(fmt.Sprintf(`SELECT * FROM book WHERE name="%s" LIMIT 1`, name))
+		book.Name = val.(string)
+		rows, err := db.Query(fmt.Sprintf(`SELECT * FROM book WHERE name="%s" LIMIT 1`, book.Name))
 		if err != nil {
 			checkErr(err)
 			return nil, err
@@ -124,9 +120,8 @@ func BookGet(val interface{}) (book *Book, err error) {
 		defer rows.Close()
 
 		for rows.Next() {
-
 			if rows != nil {
-				rows.Scan(&book.Author_id, &book.Date, &book.Id, &book.Name, &book.Station_id)
+				rows.Scan(&book.Id, &book.Author_id, &book.Name, &book.Date, &book.Station_id)
 			}
 		}
 
