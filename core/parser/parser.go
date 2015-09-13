@@ -1,0 +1,263 @@
+package parser
+
+import (
+	"fmt"
+	"github.com/PuerkitoBio/goquery"
+	"../models"
+//	"time"
+	"time"
+	"strings"
+	"strconv"
+)
+
+const (
+	URL = "http://mds-club.ru/cgi-bin/index.cgi?r=84&lang=rus"
+	AGENT = "Mozilla/5.0 (Winxp; Windows x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.85 Safari/537.36"
+	SLEEP = 200
+)
+
+var (
+	total_elements int = 1312
+	current_element int
+	StatusChan chan int
+)
+
+type Element struct {
+	Url			string
+	Author		string
+	Book		string
+	Date		string
+	Station		string
+	Files 		[]*models.File
+}
+
+func checkErr(err error) {
+	if err != nil {
+		fmt.Printf("error: %s\n", err.Error())
+		return
+	}
+}
+
+func getDocument(url string) (*goquery.Document, error) {
+	return GetDocument(AGENT, url)
+}
+
+func getNextUrl(doc *goquery.Document) (string, bool) {
+	return doc.Find("#main #body_content #roller_active").First().NextFiltered("#roller_passive").Find("a").Attr("href")
+}
+
+func getUrl(doc *goquery.Selection) (string, bool) {
+	return doc.Find("a").Attr("href")
+}
+
+func getElementsFromPage(doc *goquery.Document) ([]*Element, error) {
+
+	elements := make([]*Element, 0)
+
+	table := doc.Find("#catalogtable").Find("tbody").First()
+	trs := table.Find("tr.w")
+	for tr_i := range trs.Nodes {
+
+		tr := trs.Eq(tr_i)
+		node := tr.Find("td")
+
+		element := new(Element)
+		url, b := getUrl(node.Eq(0))
+		if b {
+			element.Url = url
+		}
+
+		element.Author = node.Eq(1).Text()
+		element.Book = node.Eq(2).Text()
+		element.Date = node.Eq(3).Text()
+		element.Station = node.Eq(5).Text()
+		elements = append(elements, element)
+	}
+
+	return elements, nil
+}
+
+func getFiles(doc *goquery.Document) ([]*models.File, error) {
+
+	files := make([]*models.File, 0)
+
+	table := doc.Find("#catalogtable").Find("tbody").First()
+	trs := table.Find("tr.w")
+	for tr_i := range trs.Nodes {
+		tr := trs.Eq(tr_i)
+		node := tr.Find("td")
+
+		file := new(models.File)
+
+		url, b := getUrl(node.Eq(3))
+		if b {
+			file.Url = url
+		}
+
+		file.Name = node.Eq(3).Text()
+		file.Size = node.Eq(4).Text()
+
+		files = append(files, file)
+	}
+
+	return files, nil
+}
+
+func parseDate(val string) (time.Time, error) {
+
+	valArr := strings.Split(val, ".")
+	day, err := strconv.Atoi(valArr[0])
+	if err != nil {
+		return time.Now(), err
+	}
+
+	month, err := strconv.Atoi(valArr[1])
+	if err != nil {
+		return time.Now(), err
+	}
+
+	year, err := strconv.Atoi(valArr[2])
+	if err != nil {
+		return time.Now(), err
+	}
+
+	return time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC), nil
+}
+
+func scanCatalog(url string) {
+
+	page, _ := getDocument(url)
+	elements, _ := getElementsFromPage(page)
+
+	for _, element := range elements {
+
+		if element.Url != "" {
+			element_page, _ := getDocument(element.Url)
+			element.Files, _ = getFiles(element_page)
+		}
+
+		// save author
+		author, _ := models.AuthorGet(element.Author)
+		if author.Id == 0 {
+			author = &models.Author{Name:element.Author}
+			author.Save()
+		}
+
+		// station
+		station, _ := models.StationGet(element.Station)
+		if station.Id == 0 {
+			station = &models.Station{Name:element.Station}
+			station.Save()
+		}
+
+		// book
+		book, _ := models.BookGet(element.Book)
+		if book.Id == 0 {
+			date, err := parseDate(element.Date)
+			if err == nil {
+				book = &models.Book{Name:element.Book, Station_id:station.Id, Author_id:author.Id, Date:date}
+			} else {
+				book = &models.Book{Name:element.Book, Station_id:station.Id, Author_id:author.Id}
+			}
+			book.Save()
+
+		} else {
+			book.Station_id = station.Id
+			date, err := parseDate(element.Date)
+			if err == nil {
+				book.Date = date
+			}
+			book.Update()
+
+			if assigned := author.IsAssigned(book); !assigned {
+				author.AddBook(book)
+			}
+		}
+
+		// save files
+		for _, file := range element.Files {
+
+			if file_id, _ := models.FileExist(file.Name, file.Url); file_id != 0 {
+				file.Id = file_id
+
+				if !book.FileExist(file) {
+					book.AddFile(file)
+				}
+			} else {
+				file.Save()
+				book.AddFile(file)
+			}
+		}
+
+		current_element += 1
+
+		StatusChan <- current_element
+		time.Sleep( time.Duration(SLEEP) * time.Millisecond)
+	}
+
+	next_url, b := getNextUrl(page)
+	if b {
+		scanCatalog(next_url)
+	}
+}
+
+func GetTotalElements(url string) (int, error) {
+
+	if total_elements != 0 {
+		return total_elements, nil
+	}
+
+	var total int
+
+	for {
+		page, err := getDocument(url)
+		if err != nil {
+			checkErr(err)
+			return 0, err
+		}
+
+		elements, err := getElementsFromPage(page)
+		if err != nil {
+			checkErr(err)
+			return 0, err
+		}
+
+		total += len(elements)
+
+		next_url, b := getNextUrl(page)
+		if !b {
+			break
+		}
+		url = next_url
+	}
+
+	total_elements = total
+
+	return total, nil
+}
+
+func Run() {
+
+	total, _ := GetTotalElements(URL)
+	fmt.Println(total)
+
+	go func() {
+		for {
+			select {
+			case current := <- StatusChan:
+				fmt.Printf("%d/%d\n", total, current)
+			}
+
+			time.Sleep(time.Millisecond * 200)
+		}
+	}()
+
+	current_element = 0
+	scanCatalog(URL)
+
+//	for {}
+}
+
+func init() {
+	StatusChan = make(chan int, 99)
+}

@@ -4,8 +4,8 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"database/sql"
 	"fmt"
-	"encoding/json"
 	"reflect"
+	"errors"
 )
 
 type Author struct  {
@@ -16,10 +16,17 @@ type Author struct  {
 func (a *Author) Save() (id int64, err error) {
 
 	stmt, err := db.Prepare("INSERT INTO author(name) values(?)")
-	checkErr(err)
+	if err != nil {
+		checkErr(err)
+		return
+	}
+	defer stmt.Close()
 
 	res, err := stmt.Exec(a.Name)
-	checkErr(err)
+	if err != nil {
+		checkErr(err)
+		return
+	}
 
 	return res.LastInsertId()
 }
@@ -27,24 +34,40 @@ func (a *Author) Save() (id int64, err error) {
 func (a *Author) Update() (err error) {
 
 	stmt, err := db.Prepare("UPDATE author SET name=? where id=?")
-	checkErr(err)
+	if err != nil {
+		checkErr(err)
+		return
+	}
+	defer stmt.Close()
 
 	res, err := stmt.Exec(a.Name, a.Id)
-	checkErr(err)
+	if err != nil {
+		checkErr(err)
+		return
+	}
 
 	_, err = res.RowsAffected()
 
 	return
 }
 
-func (a *Author) AddBook(b *Book) (int64, error) {
+func (a *Author) AddBook(b *Book) error {
 
 	b.Author_id = a.Id
-	return  b.Save()
+	return  b.Update()
 }
 
 func (a *Author) Remove() error {
 	return AuthorRemove(a.Id)
+}
+
+func (a *Author) IsAssigned(b *Book) bool {
+
+	if b != nil {
+		return b.Author_id == a.Id
+	}
+
+	return false
 }
 
 func AuthorGet(val interface{}) (author *Author, err error) {
@@ -57,7 +80,11 @@ func AuthorGet(val interface{}) (author *Author, err error) {
 		id := val.(int64)
 		author.Id = id
 		rows, err = db.Query(fmt.Sprintf("SELECT name FROM author WHERE id=%d LIMIT 1", id))
-		checkErr(err)
+		if err != nil {
+			checkErr(err)
+			return
+		}
+		defer rows.Close()
 
 		for rows.Next() {
 
@@ -72,7 +99,11 @@ func AuthorGet(val interface{}) (author *Author, err error) {
 		name := val.(string)
 		author.Name = name
 		rows, err = db.Query(fmt.Sprintf("SELECT id FROM author WHERE name='%s' LIMIT 1", name))
-		checkErr(err)
+		if err != nil {
+			checkErr(err)
+			return
+		}
+		defer rows.Close()
 
 		for rows.Next() {
 
@@ -83,12 +114,11 @@ func AuthorGet(val interface{}) (author *Author, err error) {
 			}
 		}
 
-	default:
-		break
 	}
 
-	j, err := json.Marshal(author)
-	fmt.Println(string(j))
+	if author.Id == 0 {
+		err = errors.New(fmt.Sprintf("not found authorname: %s\n", author.Name))
+	}
 
 	return
 }
@@ -96,10 +126,17 @@ func AuthorGet(val interface{}) (author *Author, err error) {
 func AuthorRemove(id int64) (err error) {
 
 	stmt, err := db.Prepare("DELETE FROM author WHERE id=?")
-	checkErr(err)
+	if err != nil {
+		checkErr(err)
+		return
+	}
+	defer stmt.Close()
 
 	res, err := stmt.Exec(id)
-	checkErr(err)
+	if err != nil {
+		checkErr(err)
+		return
+	}
 
 	_, err = res.RowsAffected()
 
@@ -112,6 +149,7 @@ func AuthorGetAll() (authors []*Author, err error) {
 	if err != nil {
 		return
 	}
+	defer rows.Close()
 
 	authors = make([]*Author, 0)	//[]
 

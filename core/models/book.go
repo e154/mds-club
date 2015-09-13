@@ -4,6 +4,8 @@ import (
 	"time"
 	"reflect"
 	"fmt"
+	"errors"
+	"html"
 )
 
 type Book struct {
@@ -11,16 +13,23 @@ type Book struct {
 	Name 		string		`json: "name"`
 	Author_id	int64		`json: "author_id"`
 	Station_id	int64		`json: "station_id"`
-	Datetime	time.Time	`json: "datetime"`
+	Date		time.Time	`json: "date"`
 }
 
 func (b *Book) Save() (int64, error) {
 
-	stmt, err := db.Prepare("INSERT INTO book(author_id, name, datetime, station_id) values(?,?,?,?)")
-	checkErr(err)
+	stmt, err := db.Prepare("INSERT INTO book(author_id, name, date, station_id) values(?,?,?,?)")
+	if err != nil {
+		checkErr(err)
+		return 0, err
+	}
+	defer stmt.Close()
 
-	res, err := stmt.Exec(b.Author_id, b.Name, b.Datetime, b.Station_id)
-	checkErr(err)
+	res, err := stmt.Exec(b.Author_id, strConv(b.Name), b.Date, b.Station_id)
+	if err != nil {
+		checkErr(err)
+		return 0, err
+	}
 
 	b.Id, err = res.LastInsertId()
 
@@ -29,13 +38,8 @@ func (b *Book) Save() (int64, error) {
 
 func (b *Book) Update() (err error) {
 
-	stmt, err := db.Prepare("UPDATE book SET name=? where id=?")
+	_, err = db.Exec(fmt.Sprintf("UPDATE book SET author_id=%d, date='%s', name='%s', station_id=%d WHERE id=%d", b.Author_id, b.Date, strConv(b.Name), b.Station_id,  b.Id))
 	checkErr(err)
-
-	res, err := stmt.Exec(b.Name, b.Id)
-	checkErr(err)
-
-	_, err = res.RowsAffected()
 
 	return
 }
@@ -50,15 +54,86 @@ func (b *Book) Remove() (err error) {
 	return BookRemove(b.Id)
 }
 
+func (b *Book) FileExist(file *File) bool {
+
+	if file != nil {
+		return b.Id == file.Book_id
+	}
+
+	return false
+}
+
+func (b *Book) Files() ([]*File, error) {
+
+	return FileGetAllByBook(b)
+}
+
 func BookRemove(id int64) (err error) {
 
 	stmt, err := db.Prepare("DELETE FROM book WHERE id=?")
-	checkErr(err)
+	if err != nil {
+		checkErr(err)
+		return
+	}
+	defer stmt.Close()
 
 	res, err := stmt.Exec(id)
-	checkErr(err)
+	if err != nil {
+		checkErr(err)
+		return
+	}
 
 	_, err = res.RowsAffected()
+
+	return
+}
+
+func BookGet(val interface{}) (book *Book, err error) {
+
+	book = new(Book)
+
+	switch reflect.TypeOf(val).Name() {
+
+	case "int64":
+		id := val.(int64)
+		book.Id = id
+		rows, err := db.Query(fmt.Sprintf("SELECT * FROM book WHERE id=%d LIMIT 1", id))
+		if err != nil {
+			checkErr(err)
+			return nil, err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+
+			if rows != nil {
+				rows.Scan(&book.Id, &book.Name, &book.Author_id, &book.Station_id, &book.Date)
+				book.Id = id
+			}
+		}
+
+	case "string":
+		name := val.(string)
+		book.Name = name
+		rows, err := db.Query(fmt.Sprintf("SELECT * FROM book WHERE name='%s' LIMIT 1", strConv(name)))
+		if err != nil {
+			checkErr(err)
+			return nil, err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+
+			if rows != nil {
+				rows.Scan(&book.Author_id, &book.Date, &book.Id, &book.Name, &book.Station_id)
+			}
+		}
+
+	}
+
+	if book.Id == 0 {
+		err = errors.New(fmt.Sprintf("book not found: %s", book.Name))
+	}
 
 	return
 }
@@ -82,13 +157,17 @@ func getAllByAuthor(author *Author) (books []*Book, err error) {
 	books = make([]*Book, 0)	//[]
 
 	rows, err := db.Query(fmt.Sprintf("SELECT * FROM book WHERE author_id=%d", author.Id))
-	checkErr(err)
+	if err != nil {
+		checkErr(err)
+		return
+	}
+	defer rows.Close()
 
 	for rows.Next() {
 
 		if rows != nil {
 			book := new(Book)
-			rows.Scan(&book.Id, &book.Author_id, &book.Name, &book.Datetime, &book.Station_id)
+			rows.Scan(&book.Id, &book.Author_id, &book.Name, &book.Date, &book.Station_id)
 			books = append(books, book)
 		}
 	}
@@ -101,16 +180,24 @@ func getAllByStation(station *Station) (books []*Book, err error) {
 	books = make([]*Book, 0)	//[]
 
 	rows, err := db.Query(fmt.Sprintf("SELECT * FROM book WHERE station_id=%d", station.Id))
-	checkErr(err)
+	if err != nil {
+		checkErr(err)
+		return
+	}
+	defer rows.Close()
 
 	for rows.Next() {
 
 		if rows != nil {
 			book := new(Book)
-			rows.Scan(&book.Id, &book.Author_id, &book.Name, &book.Datetime, &book.Station_id)
+			rows.Scan(&book.Id, &book.Author_id, &book.Name, &book.Date, &book.Station_id)
 			books = append(books, book)
 		}
 	}
 
 	return
+}
+
+func strConv(s string) string {
+	return html.EscapeString(s)
 }

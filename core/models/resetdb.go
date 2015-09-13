@@ -30,7 +30,7 @@ CREATE TABLE "book"(
 	"id" Integer NOT NULL PRIMARY KEY,
 	"author_id" Integer,
 	"name" Text,
-	"datetime" DateTime,
+	"date" Date,
 	"station_id" Integer,
 	CONSTRAINT "lnk_book_station" FOREIGN KEY ( "station_id" ) REFERENCES "station"( "id" )
 		ON DELETE Cascade

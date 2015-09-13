@@ -1,6 +1,9 @@
 package models
 
-import "fmt"
+import (
+	"fmt"
+	"reflect"
+)
 
 type Station struct {
 	Id			int64			`json: "id"`
@@ -10,10 +13,17 @@ type Station struct {
 func (s *Station) Save() (id int64, err error) {
 
 	stmt, err := db.Prepare("INSERT INTO station(name) values(?)")
-	checkErr(err)
+	if err != nil {
+		checkErr(err)
+		return
+	}
+	defer stmt.Close()
 
 	res, err := stmt.Exec(s.Name)
-	checkErr(err)
+	if err != nil {
+		checkErr(err)
+		return
+	}
 
 	return res.LastInsertId()
 }
@@ -21,10 +31,17 @@ func (s *Station) Save() (id int64, err error) {
 func (s *Station) Update() (err error) {
 
 	stmt, err := db.Prepare("UPDATE station SET name=? where id=?")
-	checkErr(err)
+	if err != nil {
+		checkErr(err)
+		return
+	}
+	defer stmt.Close()
 
 	res, err := stmt.Exec(s.Name, s.Id)
-	checkErr(err)
+	if err != nil {
+		checkErr(err)
+		return
+	}
 
 	_, err = res.RowsAffected()
 
@@ -38,29 +55,70 @@ func (s *Station) Remove() (err error) {
 func StationRemove(id int64) (err error) {
 
 	stmt, err := db.Prepare("DELETE FROM station WHERE id=?")
-	checkErr(err)
+	if err != nil {
+		checkErr(err)
+		return
+	}
+	defer stmt.Close()
 
 	res, err := stmt.Exec(id)
-	checkErr(err)
+	if err != nil {
+		checkErr(err)
+		return
+	}
 
 	_, err = res.RowsAffected()
 
 	return
 }
 
-func StationGetById(id int) (station *Station, err error) {
+func StationGet(val interface{}) (station *Station, err error) {
 
 	station = new(Station)
-	rows, err := db.Query(fmt.Sprintf("SELECT name FROM station WHERE id=%d LIMIT 1", id))
-	checkErr(err)
 
-	for rows.Next() {
+	switch reflect.TypeOf(val).Name() {
+	case "int64":
 
-		if rows != nil {
-			var name string
-			rows.Scan(&name)
-			station.Name = name
+		id := val.(int64)
+		station.Id = id
+		rows, err := db.Query(fmt.Sprintf("SELECT name FROM station WHERE id=%d LIMIT 1", id))
+		if err != nil {
+			checkErr(err)
+			return nil, err
 		}
+		defer rows.Close()
+
+		for rows.Next() {
+
+			if rows != nil {
+				var name string
+				rows.Scan(&name)
+				station.Name = name
+			}
+		}
+
+	case "string":
+
+		name := val.(string)
+		station.Name = name
+		rows, err := db.Query(fmt.Sprintf("SELECT id FROM station WHERE name='%s' LIMIT 1", name))
+		if err != nil {
+			checkErr(err)
+			return nil, err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+
+			if rows != nil {
+				var id int64
+				rows.Scan(&id)
+				station.Id = id
+			}
+		}
+
+	default:
+		break
 	}
 
 	return
@@ -71,7 +129,11 @@ func StationGetAll() (stations []*Station, err error) {
 	stations = make([]*Station, 0)	//[]
 
 	rows, err := db.Query("SELECT * FROM station")
-	checkErr(err)
+	if err != nil {
+		checkErr(err)
+		return
+	}
+	defer rows.Close()
 
 	for rows.Next() {
 
