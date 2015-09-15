@@ -10,7 +10,7 @@ func Run() {
 
 //	models.ResetDb()
 
-	quitChan, totalChan, statusChan, errorChan := parser.Run()
+	quitChan, totalChan, statusChan, errorChan := parser.Run(0, 0)
 
 	var total int
 	for  {

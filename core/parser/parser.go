@@ -13,7 +13,6 @@ const (
 	URL = "http://mds-club.ru/cgi-bin/index.cgi?r=84&lang=rus"
 	AGENT = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
 	SLEEP = 200			// millisecond
-	START_FROM = 0		// position
 	TIMEOUT = 15		// seconds
 )
 
@@ -128,7 +127,7 @@ func parseDate(val string) (time.Time, error) {
 	return time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC), nil
 }
 
-func scanCatalog(url string) error {
+func scanCatalog(url string, start, stop int) error {
 
 	page, err := getDocument(url)
 	if err != nil {
@@ -147,7 +146,7 @@ func scanCatalog(url string) error {
 		current_element += 1
 		statusChan <- current_element
 
-		if START_FROM != 0 && current_element < START_FROM {
+		if start != 0 && current_element < start {
 			time.Sleep(time.Millisecond * 100)
 			continue
 		}
@@ -259,12 +258,16 @@ func scanCatalog(url string) error {
 			}
 		}
 
+		if stop != 0 && current_element >= stop {
+			return nil
+		}
+
 		time.Sleep( time.Duration(SLEEP) * time.Millisecond)
 	}
 
 	next_url, b := getNextUrl(page)
 	if b {
-		if err := scanCatalog(next_url); err != nil {
+		if err := scanCatalog(next_url, start, stop); err != nil {
 			return err
 		}
 	}
@@ -307,7 +310,7 @@ func GetTotalElements(url string) (int, error) {
 	return total, nil
 }
 
-func Run() (chan bool, chan int, chan int, chan error) {
+func Run(start, stop int) (chan bool, chan int, chan int, chan error) {
 
 	quitChan = make(chan bool, 1)
 	totalChan = make(chan int, 1)
@@ -324,7 +327,7 @@ func Run() (chan bool, chan int, chan int, chan error) {
 
 	current_element = 0
 	go func() {
-		scanCatalog(URL)
+		scanCatalog(URL, start, stop)
 		defer close(quitChan)
 		defer close(totalChan)
 		defer close(statusChan)
