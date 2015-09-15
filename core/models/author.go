@@ -60,8 +60,6 @@ func (a *Author) Update() (err error) {
 
 func (a *Author) AddBook(b *Book) error {
 
-	fmt.Printf("%s - assign book: %s\n", a.Name, b.Name)
-
 	b.Author_id = a.Id
 	return  b.Update()
 }
@@ -87,7 +85,6 @@ func AuthorGet(val interface{}) (author *Author, err error) {
 	switch reflect.TypeOf(val).Name() {
 	case "int64":
 		id := val.(int64)
-		author.Id = id
 		rows, err = db.Query(fmt.Sprintf(`SELECT name FROM author WHERE id=%d LIMIT 1`, id))
 		if err != nil {
 			checkErr(err)
@@ -95,15 +92,16 @@ func AuthorGet(val interface{}) (author *Author, err error) {
 		}
 		defer rows.Close()
 
+		author.Id = id
 		for rows.Next() {
 			if rows != nil {
 				rows.Scan(&author.Name)
+				return
 			}
 		}
 
 	case "string":
 		name := val.(string)
-		author.Name = name
 		rows, err = db.Query(fmt.Sprintf(`SELECT id FROM author WHERE name="%s" LIMIT 1`, name))
 		if err != nil {
 			checkErr(err)
@@ -111,15 +109,17 @@ func AuthorGet(val interface{}) (author *Author, err error) {
 		}
 		defer rows.Close()
 
+		author.Name = name
 		for rows.Next() {
 			if rows != nil {
 				rows.Scan(&author.Id)
+				return
 			}
 		}
 
 	}
 
-	return
+	return nil, fmt.Errorf("author not found")
 }
 
 func AuthorRemove(id int64) (err error) {

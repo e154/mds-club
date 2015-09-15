@@ -32,17 +32,39 @@ CREATE TABLE "book"(
 	"name" Text,
 	"date" Date,
 	"station_id" Integer,
-	CONSTRAINT "lnk_book_station" FOREIGN KEY ( "station_id" ) REFERENCES "station"( "id" )
-		ON DELETE Cascade
-		ON UPDATE Cascade
-,
-	CONSTRAINT "lnk_book_author" FOREIGN KEY ( "author_id" ) REFERENCES "author"( "id" )
+	CONSTRAINT "link_author_book_2" FOREIGN KEY ( "author_id" ) REFERENCES "author"( "id" )
 		ON DELETE Cascade
 		ON UPDATE Cascade
 		DEFERRABLE INITIALLY DEFERRED
 ,
-CONSTRAINT "Unique_1" UNIQUE ( "id" ) );
+	CONSTRAINT "link_station_book_3" FOREIGN KEY ( "station_id" ) REFERENCES "station"( "id" )
+		ON DELETE Cascade
+		ON UPDATE Cascade
+,
+CONSTRAINT "Unique_1" UNIQUE ( "id", "name" ) );
 
+CREATE INDEX "bookIdx" ON "book"( "date", "author_id", "name", "id", "station_id" );
+
+-- ------------------------------------------
+-- Dump of "file"
+-- ------------------------------------------
+
+DROP TABLE IF EXISTS "file";
+
+CREATE TABLE "file"(
+	"id" Integer NOT NULL PRIMARY KEY,
+	"book_id" Integer NOT NULL,
+	"name" Text NOT NULL,
+	"url" Text NOT NULL,
+	"size" Integer NOT NULL,
+	CONSTRAINT "link_book_file_0" FOREIGN KEY ( "book_id" ) REFERENCES "book"( "id" )
+		ON DELETE Cascade
+		ON UPDATE Cascade
+		DEFERRABLE INITIALLY DEFERRED
+,
+CONSTRAINT "Unique_1" UNIQUE ( "url", "id" ) );
+
+CREATE INDEX "fileIdx" ON "file"( "id", "book_id", "name", "size", "url" );
 
 -- ------------------------------------------
 -- Dump of "station"
@@ -54,28 +76,7 @@ CREATE TABLE "station"(
 	"id" Integer PRIMARY KEY,
 	"name" Text );
 
-
--- ------------------------------------------
--- Dump of "file"
--- ------------------------------------------
-
-DROP TABLE IF EXISTS "file";
-
-CREATE TABLE "file"(
-	"id" Integer PRIMARY KEY,
-	"book_id" Integer,
-	"name" Text,
-	"url" Text,
-	"size" Integer,
-	CONSTRAINT "lnk_file_book" FOREIGN KEY ( "book_id" ) REFERENCES "book"( "id" )
-		ON DELETE Cascade
-		ON UPDATE Cascade
-		DEFERRABLE INITIALLY DEFERRED
- );
-
-CREATE INDEX "fileIdx" ON "file"( "id", "book_id", "name", "size", "url" );
-
-
+CREATE INDEX "stationIdx" ON "station"( "id", "name" );
 `
 
 func ResetDb() (err error) {

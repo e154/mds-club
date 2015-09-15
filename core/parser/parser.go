@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"../models"
-//	"time"
 	"time"
 	"strings"
 	"strconv"
@@ -13,15 +12,18 @@ import (
 const (
 	URL = "http://mds-club.ru/cgi-bin/index.cgi?r=84&lang=rus"
 	AGENT = "Mozilla/5.0 (Winxp; Windows x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.85 Safari/537.36"
-	SLEEP = 200
-	START_FROM = 0
+	SLEEP = 200			// millisecond
+	START_FROM = 0		// position
+	TIMEOUT = 15		// seconds
 )
 
 var (
-	total_elements int = 0
+	total_elements int = 1312
 	current_element int
-	StatusChan chan int
-	ErrorChan chan error
+	totalChan chan int
+	statusChan chan int
+	errorChan chan error
+	quitChan chan bool
 )
 
 type Element struct {
@@ -35,13 +37,13 @@ type Element struct {
 
 func checkErr(err error) {
 	if err != nil {
-		ErrorChan <- err
+		errorChan <- err
 		return
 	}
 }
 
 func getDocument(url string) (*goquery.Document, error) {
-	return GetDocument(AGENT, url)
+	return GetDocument(AGENT, url, time.Duration(TIMEOUT * time.Second))
 }
 
 func getNextUrl(doc *goquery.Document) (string, bool) {
@@ -143,7 +145,7 @@ func scanCatalog(url string) error {
 	for _, element := range elements {
 
 		current_element += 1
-		StatusChan <- current_element
+		statusChan <- current_element
 
 		if START_FROM != 0 && current_element < START_FROM {
 			time.Sleep(time.Millisecond * 100)
@@ -151,14 +153,24 @@ func scanCatalog(url string) error {
 		}
 
 		if element.Url != "" {
-			element_page, _ := getDocument(element.Url)
-			element.Files, _ = getFiles(element_page)
+			element_page, err := getDocument(element.Url)
+			if err != nil {
+				checkErr(err)
+				continue
+			}
+
+			element.Files, err = getFiles(element_page)
+			if err != nil {
+				checkErr(err)
+				continue
+			}
 		}
 
 		// save author
 		// ----------------------------------------------------
 		author, err := models.AuthorGet(element.Author)
-		if err != nil || author.Id == 0 {
+		if err != nil || author == nil {
+			author = new(models.Author)
 			author.Name = element.Author
 			author.Save()
 		}
@@ -166,13 +178,15 @@ func scanCatalog(url string) error {
 		if author.Id == 0 {
 			err = fmt.Errorf("author not init: %s\n", author.Name)
 			checkErr(err)
-			return err
+//			return err
+			continue
 		}
 
 		// station
 		// ----------------------------------------------------
 		station, err := models.StationGet(element.Station)
-		if err != nil || station.Id == 0 {
+		if err != nil || station == nil {
+			station = new(models.Station)
 			station.Name = element.Station
 			station.Save()
 		}
@@ -180,14 +194,16 @@ func scanCatalog(url string) error {
 		if station.Id == 0 {
 			err = fmt.Errorf("station not init: %s\n", station.Name)
 			checkErr(err)
-			return err
+//			return err
+			continue
 		}
 
 		// book
 		// ----------------------------------------------------
 		book, err := models.BookGet(element.Book)
-		if err != nil || book.Id == 0 {
+		if err != nil || book == nil {
 
+			book = new(models.Book)
 			book.Name = element.Book
 			book.Station_id = station.Id
 			book.Author_id = author.Id
@@ -206,33 +222,33 @@ func scanCatalog(url string) error {
 			}
 		}
 
-		if book.Author_id == 0 {
-			err = fmt.Errorf("book not assigned to author: %s\n", author.Name)
-			checkErr(err)
-			return err
-		}
-
-		if book.Id == 0 {
-			err = fmt.Errorf("book not init: %s\n", book.Name)
-			checkErr(err)
-			return err
-		}
-
-		// save files
-		// ----------------------------------------------------
-		for _, file := range element.Files {
-
-			if file_id, _ := models.FileExist(file.Name, file.Url); file_id != 0 {
-				file.Id = file_id
-
-				if !book.FileExist(file) {
-					book.AddFile(file)
-				}
-			} else {
-				file.Save()
-				book.AddFile(file)
-			}
-		}
+//		if book.Author_id == 0 {
+//			err = fmt.Errorf("book not assigned to author: %s\n", author.Name)
+//			checkErr(err)
+//			return err
+//		}
+//
+//		if book.Id == 0 {
+//			err = fmt.Errorf("book not init: %s\n", book.Name)
+//			checkErr(err)
+//			return err
+//		}
+//
+//		// save files
+//		// ----------------------------------------------------
+//		for _, file := range element.Files {
+//
+//			if file_id, _ := models.FileExist(file.Name, file.Url); file_id != 0 {
+//				file.Id = file_id
+//
+//				if !book.FileExist(file) {
+//					book.AddFile(file)
+//				}
+//			} else {
+//				file.Save()
+//				book.AddFile(file)
+//			}
+//		}
 
 		time.Sleep( time.Duration(SLEEP) * time.Millisecond)
 	}
@@ -282,30 +298,30 @@ func GetTotalElements(url string) (int, error) {
 	return total, nil
 }
 
-func Run() {
+func Run() (chan bool, chan int, chan int, chan error) {
 
-	total, _ := GetTotalElements(URL)
-	fmt.Println(total)
+	quitChan = make(chan bool, 1)
+	totalChan = make(chan int, 1)
+	statusChan = make(chan int, 1)
+	errorChan = make(chan error, 1)
 
-	go func() {
-		for {
-			select {
-			case current := <- StatusChan:
-				fmt.Printf("%d/%d\n", total, current)
-			case err := <- ErrorChan:
-				fmt.Printf("error: %s", err.Error())
-			}
+	total, err := GetTotalElements(URL)
+	if err != nil {
+		errorChan <- err
+		quitChan <- true
+	}
 
-		}
-	}()
+	totalChan <- total
 
 	current_element = 0
-	go scanCatalog(URL)
+	go func() {
+		scanCatalog(URL)
+		defer close(quitChan)
+		defer close(totalChan)
+		defer close(statusChan)
+		defer close(errorChan)
+		quitChan <- true
+	}()
 
-	for {}
-}
-
-func init() {
-	StatusChan = make(chan int, 1024)
-	ErrorChan = make(chan error, 1024)
+	return quitChan, totalChan, statusChan, errorChan
 }

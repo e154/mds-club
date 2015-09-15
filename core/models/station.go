@@ -88,7 +88,6 @@ func StationGet(val interface{}) (station *Station, err error) {
 	case "int64":
 
 		id := val.(int64)
-		station.Id = id
 		rows, err := db.Query(fmt.Sprintf("SELECT name FROM station WHERE id=%d LIMIT 1", id))
 		if err != nil {
 			checkErr(err)
@@ -96,19 +95,17 @@ func StationGet(val interface{}) (station *Station, err error) {
 		}
 		defer rows.Close()
 
+		station.Id = id
 		for rows.Next() {
-
 			if rows != nil {
-				var name string
-				rows.Scan(&name)
-				station.Name = name
+				rows.Scan(&station.Name)
+				return station, nil
 			}
 		}
 
 	case "string":
 
 		name := val.(string)
-		station.Name = name
 		rows, err := db.Query(fmt.Sprintf("SELECT id FROM station WHERE name='%s' LIMIT 1", name))
 		if err != nil {
 			checkErr(err)
@@ -116,17 +113,16 @@ func StationGet(val interface{}) (station *Station, err error) {
 		}
 		defer rows.Close()
 
+		station.Name = name
 		for rows.Next() {
-
 			if rows != nil {
-				var id int64
-				rows.Scan(&id)
-				station.Id = id
+				rows.Scan(&station.Id)
+				return station, nil
 			}
 		}
 	}
 
-	return
+	return nil, fmt.Errorf("station not found")
 }
 
 func StationGetAll() (stations []*Station, err error) {

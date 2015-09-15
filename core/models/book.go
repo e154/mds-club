@@ -4,6 +4,7 @@ import (
 	"time"
 	"reflect"
 	"fmt"
+	"strings"
 )
 
 type Book struct {
@@ -23,7 +24,7 @@ func (b *Book) Save() (int64, error) {
 	}
 	defer stmt.Close()
 
-	res, err := stmt.Exec(b.Author_id, b.Name, b.Date, b.Station_id)
+	res, err := stmt.Exec(b.Author_id, strConv(b.Name), b.Date, b.Station_id)
 	if err != nil {
 		checkErr(err)
 		return 0, err
@@ -36,7 +37,7 @@ func (b *Book) Save() (int64, error) {
 
 func (b *Book) Update() (err error) {
 
-	_, err = db.Exec(fmt.Sprintf(`UPDATE book SET author_id=%d, date=%s, name="%s", station_id=%d WHERE id=%d`, b.Author_id, b.Date, b.Name, b.Station_id,  b.Id))
+	_, err = db.Exec(fmt.Sprintf(`UPDATE book SET author_id=%d, date=%s, name="%s", station_id=%d WHERE id=%d`, b.Author_id, b.Date, strConv(b.Name), b.Station_id,  b.Id))
 	if err != nil {
 		checkErr(err)
 		return
@@ -94,10 +95,9 @@ func BookGet(val interface{}) (book *Book, err error) {
 	book = new(Book)
 
 	switch reflect.TypeOf(val).Name() {
-
 	case "int64":
-		book.Id = val.(int64)
-		rows, err := db.Query(fmt.Sprintf(`SELECT * FROM book WHERE id=%d LIMIT 1`, book.Id))
+		var id int64 = val.(int64)
+		rows, err := db.Query(fmt.Sprintf(`SELECT * FROM book WHERE id=%d LIMIT 1`, id))
 		if err != nil {
 			checkErr(err)
 			return nil, err
@@ -106,13 +106,15 @@ func BookGet(val interface{}) (book *Book, err error) {
 
 		for rows.Next() {
 			if rows != nil {
-				rows.Scan(&book.Id, &book.Author_id, &book.Name, &book.Date, &book.Station_id)
+				rows.Scan(&book.Author_id, &book.Date, &book.Id, &book.Name, &book.Station_id)
+				book.Id = id
+				return book, nil
 			}
 		}
 
 	case "string":
-		book.Name = val.(string)
-		rows, err := db.Query(fmt.Sprintf(`SELECT * FROM book WHERE name="%s" LIMIT 1`, book.Name))
+		var name string = strConv(val.(string))
+		rows, err := db.Query(fmt.Sprintf(`SELECT * FROM book WHERE name="%s" LIMIT 1`, name))
 		if err != nil {
 			checkErr(err)
 			return nil, err
@@ -121,13 +123,14 @@ func BookGet(val interface{}) (book *Book, err error) {
 
 		for rows.Next() {
 			if rows != nil {
-				rows.Scan(&book.Id, &book.Author_id, &book.Name, &book.Date, &book.Station_id)
+				rows.Scan(&book.Author_id, &book.Date, &book.Id, &book.Name, &book.Station_id)
+				book.Name = name
+				return book, nil
 			}
 		}
-
 	}
 
-	return
+	return nil, fmt.Errorf("book not found")
 }
 
 func BookGetAll(arg interface{}) (books []*Book, err error) {
@@ -188,4 +191,8 @@ func getAllByStation(station *Station) (books []*Book, err error) {
 	}
 
 	return
+}
+
+func strConv(str string) string {
+	return strings.Replace(str, "\"", "", -1)
 }
