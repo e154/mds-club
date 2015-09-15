@@ -222,33 +222,33 @@ func scanCatalog(url string) error {
 			}
 		}
 
-//		if book.Author_id == 0 {
-//			err = fmt.Errorf("book not assigned to author: %s\n", author.Name)
-//			checkErr(err)
-//			return err
-//		}
-//
-//		if book.Id == 0 {
-//			err = fmt.Errorf("book not init: %s\n", book.Name)
-//			checkErr(err)
-//			return err
-//		}
-//
-//		// save files
-//		// ----------------------------------------------------
-//		for _, file := range element.Files {
-//
-//			if file_id, _ := models.FileExist(file.Name, file.Url); file_id != 0 {
-//				file.Id = file_id
-//
-//				if !book.FileExist(file) {
-//					book.AddFile(file)
-//				}
-//			} else {
-//				file.Save()
-//				book.AddFile(file)
-//			}
-//		}
+		if book.Author_id == 0 {
+			err = fmt.Errorf("book not assigned to author: %s\n", author.Name)
+			checkErr(err)
+			return err
+		}
+
+		if book.Id == 0 {
+			err = fmt.Errorf("book not init: %s\n", book.Name)
+			checkErr(err)
+			return err
+		}
+
+		// save files
+		// ----------------------------------------------------
+		for _, file := range element.Files {
+
+			if file_id, _ := models.FileExist(file.Name, file.Url); file_id != 0 {
+				file.Id = file_id
+
+				if !book.FileExist(file) {
+					book.AddFile(file)
+				}
+			} else {
+				file.Save()
+				book.AddFile(file)
+			}
+		}
 
 		time.Sleep( time.Duration(SLEEP) * time.Millisecond)
 	}
