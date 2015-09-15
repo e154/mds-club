@@ -11,14 +11,14 @@ import (
 
 const (
 	URL = "http://mds-club.ru/cgi-bin/index.cgi?r=84&lang=rus"
-	AGENT = "Mozilla/5.0 (Winxp; Windows x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.85 Safari/537.36"
+	AGENT = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
 	SLEEP = 200			// millisecond
 	START_FROM = 0		// position
 	TIMEOUT = 15		// seconds
 )
 
 var (
-	total_elements int = 1312
+	total_elements int = 0
 	current_element int
 	totalChan chan int
 	statusChan chan int
@@ -236,17 +236,26 @@ func scanCatalog(url string) error {
 
 		// save files
 		// ----------------------------------------------------
-		for _, file := range element.Files {
+		old_files, err := book.Files()
+		if err != nil {
+			checkErr(err)
+			return err
+		}
 
-			if file_id, _ := models.FileExist(file.Name, file.Url); file_id != 0 {
-				file.Id = file_id
-
-				if !book.FileExist(file) {
-					book.AddFile(file)
-				}
-			} else {
+		if len(old_files) == 0 {
+			for _, file := range element.Files {
 				file.Save()
 				book.AddFile(file)
+			}
+		} else {
+			for _, file := range element.Files {
+				if file_id, _ := models.FileExist(file.Name, file.Url); file_id != 0 {
+					file.Id = file_id
+
+					if !book.FileExist(file) {
+						book.AddFile(file)
+					}
+				}
 			}
 		}
 

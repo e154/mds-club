@@ -57,3 +57,4 @@ static_source/bower_components
 /db/mds.db
 /mds
 moc_*.cpp
+/db/mds.db-journal
