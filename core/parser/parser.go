@@ -206,6 +206,7 @@ func scanCatalog(url string, start, stop int) error {
 			book.Name = element.Book
 			book.Station_id = station.Id
 			book.Author_id = author.Id
+			book.Url = element.Url
 
 			date, err := parseDate(element.Date)
 			if err == nil {
@@ -233,7 +234,7 @@ func scanCatalog(url string, start, stop int) error {
 			return err
 		}
 
-		// save files
+		// save/remove files
 		// ----------------------------------------------------
 		old_files, err := book.Files()
 		if err != nil {
@@ -243,19 +244,52 @@ func scanCatalog(url string, start, stop int) error {
 
 		if len(old_files) == 0 {
 			for _, file := range element.Files {
-				file.Save()
-				book.AddFile(file)
+				if _, err := file.Save(); err != nil {
+					checkErr(err)
+				} else {
+					book.AddFile(file)
+				}
 			}
 		} else {
-			for _, file := range element.Files {
-				if file_id, _ := models.FileExist(file.Name, file.Url); file_id != 0 {
-					file.Id = file_id
 
-					if !book.FileExist(file) {
+			// ----------------------------------
+			for _, file := range old_files {
+
+				var exist bool
+				for _, file2 := range element.Files {
+					if file.Name == file2.Name {
+						exist = true
+						break
+					}
+				}
+
+				if !exist {
+					if err := file.Remove(); err != nil {
+						checkErr(err)
+						file = nil
+					}
+				}
+			}
+
+			for _, file := range element.Files {
+
+				var exist bool
+				for _, file2 := range old_files {
+					if file.Name == file2.Name {
+						exist = true
+						break
+					}
+				}
+
+				if !exist {
+					if _, err := file.Save(); err != nil {
+						checkErr(err)
+					} else {
 						book.AddFile(file)
 					}
 				}
 			}
+			// ----------------------------------
 		}
 
 		if stop != 0 && current_element >= stop {

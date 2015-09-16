@@ -13,18 +13,19 @@ type Book struct {
 	Author_id	int64		`json: "author_id"`
 	Station_id	int64		`json: "station_id"`
 	Date		time.Time	`json: "date"`
+	Url			string		`json: "url"`
 }
 
 func (b *Book) Save() (int64, error) {
 
-	stmt, err := db.Prepare("INSERT INTO book(author_id, name, date, station_id) values(?,?,?,?)")
+	stmt, err := db.Prepare("INSERT INTO book(author_id, name, date, station_id, url) values(?,?,?,?,?)")
 	if err != nil {
 		checkErr(err)
 		return 0, err
 	}
 	defer stmt.Close()
 
-	res, err := stmt.Exec(b.Author_id, strConv(b.Name), b.Date, b.Station_id)
+	res, err := stmt.Exec(b.Author_id, strConv(b.Name), b.Date, b.Station_id, b.Url)
 	if err != nil {
 		checkErr(err)
 		return 0, err
@@ -37,7 +38,7 @@ func (b *Book) Save() (int64, error) {
 
 func (b *Book) Update() (err error) {
 
-	_, err = db.Exec(fmt.Sprintf(`UPDATE book SET author_id=%d, date=%s, name="%s", station_id=%d WHERE id=%d`, b.Author_id, b.Date, strConv(b.Name), b.Station_id,  b.Id))
+	_, err = db.Exec(fmt.Sprintf(`UPDATE book SET author_id=%d, date=%s, name="%s", station_id=%d, url="%s" WHERE id=%d`, b.Author_id, b.Date, strConv(b.Name), b.Station_id, b.Url,  b.Id))
 	if err != nil {
 		checkErr(err)
 		return
@@ -106,7 +107,7 @@ func BookGet(val interface{}) (book *Book, err error) {
 
 		for rows.Next() {
 			if rows != nil {
-				rows.Scan(&book.Author_id, &book.Date, &book.Id, &book.Name, &book.Station_id)
+				rows.Scan(&book.Author_id, &book.Date, &book.Id, &book.Name, &book.Station_id, &book.Url)
 				book.Id = id
 				return book, nil
 			}
@@ -123,7 +124,7 @@ func BookGet(val interface{}) (book *Book, err error) {
 
 		for rows.Next() {
 			if rows != nil {
-				rows.Scan(&book.Author_id, &book.Date, &book.Id, &book.Name, &book.Station_id)
+				rows.Scan(&book.Author_id, &book.Date, &book.Id, &book.Name, &book.Station_id, &book.Url)
 				book.Name = name
 				return book, nil
 			}
@@ -162,7 +163,7 @@ func getAllByAuthor(author *Author) (books []*Book, err error) {
 
 		if rows != nil {
 			book := new(Book)
-			rows.Scan(&book.Id, &book.Author_id, &book.Name, &book.Date, &book.Station_id)
+			rows.Scan(&book.Id, &book.Author_id, &book.Name, &book.Date, &book.Station_id, &book.Url)
 			books = append(books, book)
 		}
 	}
@@ -185,7 +186,7 @@ func getAllByStation(station *Station) (books []*Book, err error) {
 
 		if rows != nil {
 			book := new(Book)
-			rows.Scan(&book.Id, &book.Author_id, &book.Name, &book.Date, &book.Station_id)
+			rows.Scan(&book.Id, &book.Author_id, &book.Name, &book.Date, &book.Station_id, &book.Url)
 			books = append(books, book)
 		}
 	}
