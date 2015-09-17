@@ -197,3 +197,8 @@ func getAllByStation(station *Station) (books []*Book, err error) {
 func strConv(str string) string {
 	return strings.Replace(str, "\"", "", -1)
 }
+
+func (b *Book) Play() (err error) {
+
+	return nil
+}
