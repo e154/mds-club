@@ -1,0 +1,22 @@
+{
+  "name": "mds",
+  "version": "0.0.0",
+  "authors": [
+    "delta54 <support@e154.ru>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angularjs": "~1.4.3",
+    "angular-route": "~1.4.3",
+    "angular-route-segment": "~1.5.0",
+    "angular-resource": "~1.4.3",
+    "ngSocket": "~0.2.1"
+  }
+}

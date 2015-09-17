@@ -56,5 +56,8 @@ static_source/bower_components
 *.deb
 /db/mds.db
 /mds
+/node_modules
+/static_source/js
+/static_source/css
 moc_*.cpp
 /db/mds.db-journal
