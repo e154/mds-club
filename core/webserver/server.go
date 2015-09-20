@@ -4,7 +4,8 @@ import (
     "net/http"
     "time"
     "github.com/gorilla/websocket"
-	"github.com/gorilla/mux"
+	"github.com/gorilla/pat"
+	"fmt"
 )
 
 const (
@@ -34,14 +35,16 @@ var upgrader = websocket.Upgrader{
 func Run(address string) {
 
 	// routes
-	r := mux.NewRouter()
-	r.HandleFunc("/", homeHandler)
-	r.HandleFunc("/ws", wsHandler)
-	r.HandleFunc("/js/", staticHandler)
-	r.HandleFunc("/css/", staticHandler)
-	r.HandleFunc("/images/", staticHandler)
-	r.HandleFunc("/templates/", staticHandler)
+	r := pat.New()
+	r.Get("/ws", wsHandler)
+	r.Get("/js/", staticHandler)
+	r.Get("/css/", staticHandler)
+	r.Get("/images/", staticHandler)
+	r.Get("/templates/", staticHandler)
+	r.Get("/", homeHandler)
 	http.Handle("/", r)
 
-    go http.ListenAndServe(address, nil)
+    if err := http.ListenAndServe(address, nil); err != nil {
+		fmt.Println(err.Error())
+	}
 }
