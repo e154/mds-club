@@ -20,7 +20,7 @@ angular.module('app')
   ($routeProvider, $locationProvider, $routeSegmentProvider) ->
     $routeSegmentProvider
       .when '/',              'base.dashboard'
-      .when '/settings',      'base.settings'
+      .when '/authors',       'base.authors'
       .when '/about',         'base.about'
       .when '/lock',          'lock'
 
@@ -34,9 +34,10 @@ angular.module('app')
           templateUrl: '/templates/dashboard.html'
           controller: 'dashboardCtrl as dashboard'
 
-        .segment 'settings',
-          templateUrl: '/templates/settings.html'
-          controller: 'settingsCtrl as settings'
+        .segment 'authors',
+          templateUrl: '/templates/authors.html'
+          controller: 'authorsCtrl'
+          controllerAs: 'authors'
 
         .segment 'about',
           templateUrl: '/templates/about.html'

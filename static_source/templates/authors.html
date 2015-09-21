@@ -1,0 +1,14 @@
+<div class="col-lg-12 form-group">
+    <h3>Authors</h3>
+</div>
+<div class="page">
+
+    <input ng-model="search_name" placeholder="поиск автора...">
+
+    <ul>
+        <li ng-repeat="author in authors_list">
+            <a ng-href="{{author.Id}}">{{author.Name}}</a>
+        </li>
+    </ul>
+
+</div>

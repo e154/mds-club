@@ -164,3 +164,42 @@ func AuthorGetAll() (authors []*Author, err error) {
 
 	return
 }
+
+func AuthorFind(name string, page, items_per_page int) (authors []*Author, total_items int32, err error) {
+
+	if page > 0 {
+		page -= 1
+	} else {
+		page = 0
+	}
+
+	authors = make([]*Author, 0)	//[]
+
+	total_rows, err := db.Query(fmt.Sprintf(`SELECT * FROM "author" WHERE "author"."name" LIKE '%s'`, "%"+name+"%"))
+	if err != nil {
+		return
+	}
+	defer total_rows.Close()
+
+	for total_rows.Next() {
+		total_items++
+	}
+
+	rows, err := db.Query(fmt.Sprintf(`SELECT * FROM "author" WHERE "author"."name" LIKE '%s' LIMIT %d OFFSET %d`, "%"+name+"%", items_per_page, page))
+	if err != nil {
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		author := new(Author)
+		err = rows.Scan(&author.Id, &author.Name)
+		if err != nil {
+			return
+		}
+
+		authors = append(authors, author)
+	}
+
+	return
+}

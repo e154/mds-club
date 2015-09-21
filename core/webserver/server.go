@@ -41,10 +41,17 @@ func Run(address string) {
 	r.Get("/css/", staticHandler)
 	r.Get("/images/", staticHandler)
 	r.Get("/templates/", staticHandler)
+	r.Get("/api/authors/page~{page:[0-9]+}/limit~{limit:[0-9]+}/search={search:[\\w]?}", authorsHandler)
 	r.Get("/", homeHandler)
 	http.Handle("/", r)
 
     if err := http.ListenAndServe(address, nil); err != nil {
 		fmt.Println(err.Error())
+	}
+}
+
+func checkErr(err error) {
+	if err != nil {
+		fmt.Printf("error: %s\n", err.Error())
 	}
 }
