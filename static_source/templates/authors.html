@@ -5,10 +5,18 @@
         <input md-maxlength="30" required name="namr" ng-model="search_name">
     </md-input-container>
 
-    <ul>
+    <ul ng-if="authors_list">
         <li ng-repeat="author in authors_list">
             <a ng-href="{{author.Id}}">{{author.Name}}</a>
         </li>
     </ul>
+
+    <div ng-if="authors_list.length == 0" style="align-content: center;">Ни чего не найдено</div>
+
+    <div ng-show="total_items > items_per_page">
+        <pagination boundary-links="true" total-items="total_items" items-per-page="items_per_page" max-size="max_size" ng-model="current_page" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></pagination>
+    </div>
+
+    <span ng-if="total_items > 0" style="text-align: right;">Всего найдено: {{total_items}}</span>
 
 </div>

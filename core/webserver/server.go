@@ -41,7 +41,7 @@ func Run(address string) {
 	r.Get("/css/", staticHandler)
 	r.Get("/images/", staticHandler)
 	r.Get("/templates/", staticHandler)
-	r.Get("/api/authors/page~{page:[0-9]+}/limit~{limit:[0-9]+}/search={search:[а-яА-Я0-9]*}", authorsHandler)
+	r.Get("/api/authors/page~{page:[0-9]+}/limit~{limit:[0-9]+}/search={search:[а-яА-Яa-zA-Z0-9]*}", authorsHandler)
 	r.Get("/", homeHandler)
 	http.Handle("/", r)
 

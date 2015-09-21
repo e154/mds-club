@@ -11,6 +11,7 @@ angular
     $scope.current_page = 1
     $scope.items_per_page = 24
     $scope.total_items = 1
+    $scope.max_size = 5
 
     updateAuthors = (val)=>
       if !val?
@@ -34,6 +35,13 @@ angular
           return
 
         updateAuthors(val)
+
+    $scope.$watch 'current_page',
+      (val, old_val)=>
+        if val == old_val
+          return
+
+        updateAuthors($scope.search_name)
 
     updateAuthors("")
   ]

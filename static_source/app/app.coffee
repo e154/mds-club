@@ -14,6 +14,7 @@ app = angular
     'view-segment'
     'ngSocket'
     'ngMaterial'
+    'ui.pagination'
   ])
 
 angular.module('app')
