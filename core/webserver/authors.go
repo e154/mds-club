@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"encoding/json"
 	"strconv"
+	"strings"
 )
 
 func authorsHandler(w http.ResponseWriter, r *http.Request) {
@@ -15,7 +16,11 @@ func authorsHandler(w http.ResponseWriter, r *http.Request) {
 	search := r.Form[":search"][0]
 	if search == "" {
 		search = "%"
+	} else {
+		search = strings.ToLower(search)
 	}
+
+	fmt.Println(search)
 
 	page, err := strconv.Atoi(r.Form[":page"][0])
 	if err != nil {

@@ -1,27 +1,18 @@
 <!--base-->
-<nav class="navbar navbar-inverse">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="#/">
-                Watcher
-            </a>
-        </div>
-
-        <div class="collapse navbar-collapse">
-            <ul class="nav navbar-nav navbar-right">
-                <li ng-class="{active: ('base.dashboard' | routeSegmentStartsWith)}">
-                    <a href="{{ 'base.dashboard' | routeSegmentUrl }}">Dashboard</a>
-                </li>
-                <li ng-class="{active: ('base.authors' | routeSegmentStartsWith)}">
-                    <a href="{{ 'base.authors' | routeSegmentUrl }}">Authors</a>
-                </li>
-                <li ng-class="{active: ('base.about' | routeSegmentStartsWith)}">
-                    <a href="{{ 'base.about' | routeSegmentUrl }}">About</a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+<md-content>
+<md-tabs md-stretch-tabs md-selected="selectedIndex">
+    <md-tab ng-class="{'md-active': ('base.books' | routeSegmentStartsWith)}">
+        <a ng-href="{{ 'base.books' | routeSegmentUrl }}">Книги</a>
+    </md-tab>
+    <md-tab ng-class="{'md-active': ('base.authors' | routeSegmentStartsWith)}">
+        <a ng-href="{{ 'base.authors' | routeSegmentUrl }}">Авторы</a>
+    </md-tab>
+    <md-tab ng-class="{'md-active': ('base.history' | routeSegmentStartsWith)}">
+        <a ng-href="{{ 'base.history' | routeSegmentUrl }}">История</a>
+    </md-tab>
+</md-tabs>
 
 <div app-view-segment="1"></div>
+
+</md-content>
 <!--/base-->

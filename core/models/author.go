@@ -8,20 +8,21 @@ import (
 )
 
 type Author struct  {
-	Id		int64		`json: "id"`
-	Name	string		`json: "name"`
+	Id			int64		`json: "id"`
+	Name		string		`json: "name"`
+	Low_name	string		`json: "low_name"`
 }
 
 func (a *Author) Save() (id int64, err error) {
 
-	stmt, err := db.Prepare("INSERT INTO author(name) values(?)")
+	stmt, err := db.Prepare("INSERT INTO author(name, low_name) values(?,?)")
 	if err != nil {
 		checkErr(err)
 		return
 	}
 	defer stmt.Close()
 
-	res, err := stmt.Exec(a.Name)
+	res, err := stmt.Exec(a.Name, a.Low_name)
 	if err != nil {
 		checkErr(err)
 		return
@@ -40,14 +41,14 @@ func (a *Author) Save() (id int64, err error) {
 
 func (a *Author) Update() (err error) {
 
-	stmt, err := db.Prepare("UPDATE author SET name=? where id=?")
+	stmt, err := db.Prepare("UPDATE author SET name=?, low_name=? where id=?")
 	if err != nil {
 		checkErr(err)
 		return
 	}
 	defer stmt.Close()
 
-	res, err := stmt.Exec(a.Name, a.Id)
+	res, err := stmt.Exec(a.Name, a.Low_name, a.Id)
 	if err != nil {
 		checkErr(err)
 		return
@@ -95,7 +96,7 @@ func AuthorGet(val interface{}) (author *Author, err error) {
 		author.Id = id
 		for rows.Next() {
 			if rows != nil {
-				rows.Scan(&author.Name)
+				rows.Scan(&author.Name, &author.Low_name)
 				return
 			}
 		}
@@ -112,7 +113,7 @@ func AuthorGet(val interface{}) (author *Author, err error) {
 		author.Name = name
 		for rows.Next() {
 			if rows != nil {
-				rows.Scan(&author.Id)
+				rows.Scan(&author.Id, &author.Low_name)
 				return
 			}
 		}
@@ -154,7 +155,7 @@ func AuthorGetAll() (authors []*Author, err error) {
 
 	for rows.Next() {
 		author := new(Author)
-		err = rows.Scan(&author.Id, &author.Name)
+		err = rows.Scan(&author.Id, &author.Name, &author.Low_name)
 		if err != nil {
 			return
 		}
@@ -193,7 +194,7 @@ func AuthorFind(name string, page, items_per_page int) (authors []*Author, total
 
 	for rows.Next() {
 		author := new(Author)
-		err = rows.Scan(&author.Id, &author.Name)
+		err = rows.Scan(&author.Id, &author.Name, &author.Low_name)
 		if err != nil {
 			return
 		}

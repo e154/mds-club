@@ -15,10 +15,11 @@ DROP TABLE IF EXISTS "author";
 CREATE TABLE "author"(
 	"id" Integer NOT NULL PRIMARY KEY AUTOINCREMENT,
 	"name" Text NOT NULL,
-CONSTRAINT "Unique_1" UNIQUE ( "id" ),
-CONSTRAINT "Unique_2" UNIQUE ( "name" ) );
+	"low_name" Text NOT NULL );
 
-CREATE INDEX "authorIdx" ON "author"( "id", "name" );
+CREATE INDEX "authorIdx" ON "author"( "id" );
+CREATE INDEX "authorIdx1" ON "author"( "name" );
+CREATE INDEX "authorIdx2" ON "author"( "low_name" );
 
 -- ------------------------------------------
 -- Dump of "book"
@@ -27,11 +28,13 @@ CREATE INDEX "authorIdx" ON "author"( "id", "name" );
 DROP TABLE IF EXISTS "book";
 
 CREATE TABLE "book"(
-	"id" Integer NOT NULL PRIMARY KEY,
 	"author_id" Integer,
-	"name" Text,
 	"date" Date,
+	"id" Integer NOT NULL PRIMARY KEY,
+	"name" Text,
 	"station_id" Integer,
+	"url" Text,
+	"low_name" Text,
 	CONSTRAINT "link_author_book_2" FOREIGN KEY ( "author_id" ) REFERENCES "author"( "id" )
 		ON DELETE Cascade
 		ON UPDATE Cascade
@@ -41,9 +44,14 @@ CREATE TABLE "book"(
 		ON DELETE Cascade
 		ON UPDATE Cascade
 ,
-CONSTRAINT "Unique_1" UNIQUE ( "id", "name" ) );
+CONSTRAINT "Unique_2" UNIQUE ( "name" ) );
 
-CREATE INDEX "bookIdx" ON "book"( "date", "author_id", "name", "id", "station_id" );
+CREATE INDEX "bookIdx" ON "book"( "name" );
+CREATE INDEX "bookIdx1" ON "book"( "date" );
+CREATE INDEX "bookIdx2" ON "book"( "id" );
+CREATE INDEX "bookIdx3" ON "book"( "station_id" );
+CREATE INDEX "bookIdx4" ON "book"( "author_id" );
+CREATE INDEX "bookIdx5" ON "book"( "low_name" );
 
 -- ------------------------------------------
 -- Dump of "file"
@@ -52,17 +60,18 @@ CREATE INDEX "bookIdx" ON "book"( "date", "author_id", "name", "id", "station_id
 DROP TABLE IF EXISTS "file";
 
 CREATE TABLE "file"(
-	"id" Integer NOT NULL PRIMARY KEY,
 	"book_id" Integer NOT NULL,
+	"id" Integer NOT NULL PRIMARY KEY,
 	"name" Text NOT NULL,
-	"url" Text NOT NULL,
 	"size" Integer NOT NULL,
+	"url" Text NOT NULL,
 	CONSTRAINT "link_book_file_0" FOREIGN KEY ( "book_id" ) REFERENCES "book"( "id" )
 		ON DELETE Cascade
 		ON UPDATE Cascade
 		DEFERRABLE INITIALLY DEFERRED
 ,
-CONSTRAINT "Unique_1" UNIQUE ( "url", "id" ) );
+CONSTRAINT "Unique_1" UNIQUE ( "id" ),
+CONSTRAINT "Unique_2" UNIQUE ( "url" ) );
 
 CREATE INDEX "fileIdx" ON "file"( "id", "book_id", "name", "size", "url" );
 
@@ -74,9 +83,11 @@ DROP TABLE IF EXISTS "station";
 
 CREATE TABLE "station"(
 	"id" Integer PRIMARY KEY,
-	"name" Text );
+	"name" Text,
+CONSTRAINT "stationUnique" UNIQUE ( "name" ) );
 
-CREATE INDEX "stationIdx" ON "station"( "id", "name" );
+CREATE INDEX "stationIdx" ON "station"( "id" );
+CREATE INDEX "stationIdx1" ON "station"( "name" );
 `
 
 func ResetDb() (err error) {

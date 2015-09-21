@@ -13,14 +13,16 @@ app = angular
     'route-segment'
     'view-segment'
     'ngSocket'
+    'ngMaterial'
   ])
 
 angular.module('app')
-  .config ['$routeProvider', '$locationProvider', '$routeSegmentProvider'
-  ($routeProvider, $locationProvider, $routeSegmentProvider) ->
+  .config ['$routeProvider', '$locationProvider', '$routeSegmentProvider', '$mdThemingProvider'
+  ($routeProvider, $locationProvider, $routeSegmentProvider, $mdThemingProvider) ->
     $routeSegmentProvider
-      .when '/',              'base.dashboard'
+      .when '/',              'base.books'
       .when '/authors',       'base.authors'
+      .when '/history',       'base.history'
       .when '/about',         'base.about'
       .when '/lock',          'lock'
 
@@ -29,15 +31,19 @@ angular.module('app')
         controller: 'baseCtrl as base'
 
       .within()
-        .segment 'dashboard',
+        .segment 'books',
           default: true
-          templateUrl: '/templates/dashboard.html'
-          controller: 'dashboardCtrl as dashboard'
+          templateUrl: '/templates/books.html'
+          controller: 'booksCtrl as books'
 
         .segment 'authors',
           templateUrl: '/templates/authors.html'
           controller: 'authorsCtrl'
           controllerAs: 'authors'
+
+        .segment 'history',
+          templateUrl: '/templates/history.html'
+          controller: 'historyCtrl as history'
 
         .segment 'about',
           templateUrl: '/templates/about.html'
@@ -54,6 +60,8 @@ angular.module('app')
 
     $routeProvider.otherwise
       redirectTo: '/'
+
+    $mdThemingProvider.theme('purple')
   ]
 
 angular.module('app')

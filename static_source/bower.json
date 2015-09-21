@@ -13,10 +13,11 @@
     "tests"
   ],
   "dependencies": {
-    "angularjs": "~1.4.3",
+    "angular-material": "~0.11.0",
+    "angular-resource": "~1.4.3",
     "angular-route": "~1.4.3",
     "angular-route-segment": "~1.5.0",
-    "angular-resource": "~1.4.3",
+    "angularjs": "~1.4.3",
     "ngSocket": "~0.2.1"
   }
 }

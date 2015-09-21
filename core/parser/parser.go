@@ -171,6 +171,7 @@ func scanCatalog(url string, start, stop int) error {
 		if err != nil || author == nil {
 			author = new(models.Author)
 			author.Name = element.Author
+			author.Low_name = strings.ToLower(element.Author)
 			author.Save()
 		}
 
@@ -207,6 +208,7 @@ func scanCatalog(url string, start, stop int) error {
 			book.Station_id = station.Id
 			book.Author_id = author.Id
 			book.Url = element.Url
+			book.Low_name = strings.ToLower(element.Book)
 
 			date, err := parseDate(element.Date)
 			if err == nil {

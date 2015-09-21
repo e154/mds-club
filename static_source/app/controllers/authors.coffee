@@ -13,6 +13,9 @@ angular
     $scope.total_items = 1
 
     updateAuthors = (val)=>
+      if !val?
+        val = ""
+
       AuthorsResource.get
         'a1': 'page~'+$scope.current_page
         'a2': 'limit~'+$scope.items_per_page

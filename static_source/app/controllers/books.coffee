@@ -2,7 +2,7 @@
 
 angular
   .module('appControllers')
-  .controller 'dashboardCtrl', ['$scope'
+  .controller 'booksCtrl', ['$scope'
   ($scope) ->
     vm = this
 
