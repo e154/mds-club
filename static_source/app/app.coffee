@@ -21,11 +21,11 @@ angular.module('app')
   .config ['$routeProvider', '$locationProvider', '$routeSegmentProvider', '$mdThemingProvider'
   ($routeProvider, $locationProvider, $routeSegmentProvider, $mdThemingProvider) ->
     $routeSegmentProvider
-      .when '/',              'base.books'
-      .when '/authors',       'base.authors'
-      .when '/history',       'base.history'
-      .when '/about',         'base.about'
-      .when '/lock',          'lock'
+      .when '/',                                      'base.books'
+      .when '/authors/page~:page/limit~:limit',       'base.authors'
+      .when '/history',                               'base.history'
+      .when '/about',                                 'base.about'
+      .when '/lock',                                  'lock'
 
       .segment 'base',
         templateUrl: '/templates/base.html'
@@ -35,12 +35,11 @@ angular.module('app')
         .segment 'books',
           default: true
           templateUrl: '/templates/books.html'
-          controller: 'booksCtrl as books'
+          controller: 'booksCtrl'
 
         .segment 'authors',
           templateUrl: '/templates/authors.html'
           controller: 'authorsCtrl'
-          controllerAs: 'authors'
 
         .segment 'history',
           templateUrl: '/templates/history.html'
@@ -48,12 +47,12 @@ angular.module('app')
 
         .segment 'about',
           templateUrl: '/templates/about.html'
-          controller: 'aboutCtrl as about'
+          controller: 'aboutCtrl'
 
       .up()
       .segment 'lock',
         templateUrl: '/templates/lock.html'
-        controller: 'lockCtrl as lock'
+        controller: 'lockCtrl'
 
     $locationProvider.html5Mode
       enabled: true
@@ -81,4 +80,10 @@ angular.module('app')
 #        win.show()
 #        this.remove()
 #        tray = null
+
+    $rootScope.cache =
+      author:
+        id: 0
+        name: ""
+      book: ""
   ]
