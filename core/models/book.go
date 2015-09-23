@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"fmt"
 	"strings"
+	"strconv"
 )
 
 type Book struct {
@@ -202,4 +203,64 @@ func strConv(str string) string {
 func (b *Book) Play() (err error) {
 
 	return nil
+}
+
+func BookFind(name, author string, page, limit int) (books []*Book, total_items int32, err error) {
+
+	if page > 0 {
+		page -= 1
+	} else {
+		page = 0
+	}
+
+	books = make([]*Book, 0)	//[]
+
+	var query string
+	var author_id int
+	if author != "all" {
+		author_id, err = strconv.Atoi(author)
+		if err != nil {
+			query = fmt.Sprintf(`select * from "book" WHERE "name" LIKE "%s"`, "%"+name+"%")
+			checkErr(err)
+		} else {
+			query = fmt.Sprintf(`select * from "book" WHERE "author_id"="%d" and "name" LIKE "%s"`, author_id, "%"+name+"%")
+		}
+	} else {
+		query = fmt.Sprintf(`select * from "book" WHERE "name" LIKE "%s"`, "%"+name+"%")
+	}
+
+	// rows count
+	total_rows, err := db.Query(query)
+	if err != nil {
+		return
+	}
+	defer total_rows.Close()
+
+	for total_rows.Next() {
+		total_items++
+	}
+
+	// bookd page
+	if author_id != 0 {
+		query = fmt.Sprintf(`select * from "book" WHERE "author_id"="%d" and "name" LIKE "%s" LIMIT "%d" OFFSET "%d"`, author_id, "%"+name+"%", limit, page)
+	} else {
+		query = fmt.Sprintf(`select * from "book" WHERE "name" LIKE "%s" LIMIT "%d" OFFSET "%d"`, "%"+name+"%", limit, page)
+	}
+	rows, err := db.Query(query)
+	if err != nil {
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		book := new(Book)
+		err = rows.Scan(&book.Author_id, &book.Date, &book.Id, &book.Name, &book.Station_id, &book.Url, &book.Low_name)
+		if err != nil {
+			return
+		}
+
+		books = append(books, book)
+	}
+
+	return
 }

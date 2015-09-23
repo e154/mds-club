@@ -5,10 +5,6 @@ angular
   .controller 'authorsCtrl', ['$scope', 'AuthorsResource', '$rootScope', '$routeSegment', '$location'
   ($scope, AuthorsResource, $rootScope, $routeSegment, $location) =>
 
-    vm = this
-
-    console.log("authorsCtrl")
-
     $scope.search_name = $rootScope.cache.author.name
     $scope.authors_list = []
     $scope.total_items = 1

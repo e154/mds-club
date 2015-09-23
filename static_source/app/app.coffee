@@ -21,11 +21,11 @@ angular.module('app')
   .config ['$routeProvider', '$locationProvider', '$routeSegmentProvider', '$mdThemingProvider'
   ($routeProvider, $locationProvider, $routeSegmentProvider, $mdThemingProvider) ->
     $routeSegmentProvider
-      .when '/',                                      'base.books'
-      .when '/authors/page~:page/limit~:limit',       'base.authors'
-      .when '/history',                               'base.history'
-      .when '/about',                                 'base.about'
-      .when '/lock',                                  'lock'
+      .when '/',                                                  'base.history'
+      .when '/authors/page~:page/limit~:limit',                   'base.authors'
+      .when '/books/page~:page/limit~:limit/author~:author',      'base.books'
+      .when '/about',                                             'base.about'
+      .when '/lock',                                              'lock'
 
       .segment 'base',
         templateUrl: '/templates/base.html'
@@ -33,7 +33,6 @@ angular.module('app')
 
       .within()
         .segment 'books',
-          default: true
           templateUrl: '/templates/books.html'
           controller: 'booksCtrl'
 
@@ -42,6 +41,7 @@ angular.module('app')
           controller: 'authorsCtrl'
 
         .segment 'history',
+          default: true
           templateUrl: '/templates/history.html'
           controller: 'historyCtrl as history'
 
@@ -85,5 +85,7 @@ angular.module('app')
       author:
         id: 0
         name: ""
-      book: ""
+      book:
+        id: 0
+        name: ""
   ]
