@@ -9,7 +9,7 @@ angular
     $scope.book_list = []
     $scope.total_items = 1
     $scope.max_size = 5
-    $scope.author = "all"
+    $scope.author = $routeSegment.$routeParams.author || "all"
 
     $scope.current_page = $routeSegment.$routeParams.page || 1
     $scope.items_per_page = $routeSegment.$routeParams.limit || 24
