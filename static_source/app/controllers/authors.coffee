@@ -10,8 +10,8 @@ angular
     $scope.total_items = 1
     $scope.max_size = 5
 
-    $scope.current_page = $routeSegment.$routeParams.page || 1
-    $scope.items_per_page = $routeSegment.$routeParams.limit || 24
+    $scope.current_page = parseInt($routeSegment.$routeParams.page) || 1
+    $scope.items_per_page = parseInt($routeSegment.$routeParams.limit) || 24
 
     updateAuthors = ()=>
       if !$scope.search_name?
