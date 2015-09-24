@@ -1,23 +1,32 @@
 <div class="page">
-    <md-input-container>
-        <label>Поиск по названию...</label>
-        <input md-maxlength="30" name="name" ng-model="search_name">
+
+    <md-input-container flex>
+        <label>Книга</label>
+        <input md-maxlength="30" name="search_book_name" ng-model="search_name">
     </md-input-container>
+
+    <md-button ng-click="author = 'all'">
+        Сбросить фильтр
+    </md-button>
 
     <table ng-if="book_list">
         <thead>
         <tr>
             <td class="table_id_col">id</td>
-            <td>книга</td>
-            <td>читалась</td>
+            <td class="table_book_col">книга</td>
+            <td class="table_author_col">автор</td>
+            <td class="table_date_col">читалась</td>
+            <td>станция</td>
         </tr>
         </thead>
         <tbody>
         <tr ng-repeat="book in book_list">
 
             <td>{{$index + (current_page - 1) * items_per_page + 1}}</td>
-            <td><a ng-href="{{book.Id}}" truncate-text="36">{{book.Name}}</a></td>
-            <td><a ng-href="{{book.Id}}">{{book.Date | date}}</a></td>
+            <td><a href="" ng-click="openPlayer(book)" truncate-text="36">{{book.Name}}</a></td>
+            <td><a href="" ng-click="openPlayer(book)" truncate-text="36">{{book.Author_name}}</a></td>
+            <td>{{book.Date | date}}</td>
+            <td truncate-text="15">{{book.Station_name}}</td>
 
         </tr>
         </tbody>

@@ -1,0 +1,31 @@
+<div class="dialog-contents">
+    <a class="close-player" href="" ng-click="closeThisDialog()">
+        <div class="x">X</div>
+        <div class="esc">ESC</div>
+    </a>
+
+    <div class="dialog-head">
+
+        <dl>
+            <dt>Автор:</dt>
+            <dd><a ng-href="{{ 'base.books' | routeSegmentUrl: {page: 1, limit: 24, author: book.Author_id} }}" ng-click="closeThisDialog()">{{book.Author_name}}</a></dd>
+            <dt>Название:</dt>
+            <dd>{{book.Name}}</dd>
+            <dt ng-if="book.Date">В эфире:</dt>
+            <dd ng-if="book.Date">{{book.Date | date}}</dd>
+            <dt>Станция:</dt>
+            <dd>{{book.Station_name}}</dd>
+        </dl>
+    </div>
+
+    <div class="dialog-content">
+
+    </div>
+
+    <div class="dialog-footer">
+
+    </div>
+
+</div>
+
+

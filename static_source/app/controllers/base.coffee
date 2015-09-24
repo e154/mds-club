@@ -2,8 +2,10 @@
 
 angular
   .module('appControllers')
-  .controller 'baseCtrl', ['$scope'
-  ($scope) ->
+  .controller 'baseCtrl', ['$scope', '$window'
+  ($scope, $window) ->
     vm = this
 
+    $scope.back = ()->
+      $window.history.back()
   ]

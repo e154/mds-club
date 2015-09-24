@@ -9,13 +9,15 @@ import (
 )
 
 type Book struct {
-	Id			int64		`json: "id"`
-	Name 		string		`json: "name"`
-	Low_name 	string		`json: "low_name"`
-	Author_id	int64		`json: "author_id"`
-	Station_id	int64		`json: "station_id"`
-	Date		time.Time	`json: "date"`
-	Url			string		`json: "url"`
+	Id				int64		`json: "id"`
+	Name 			string		`json: "name"`
+	Low_name 		string		`json: "low_name"`
+	Author_id		int64		`json: "author_id"`
+	Station_id		int64		`json: "station_id"`
+	Date			time.Time	`json: "date"`
+	Url				string		`json: "url"`
+	Author_name 	string		`json: "author_name"`
+	Station_name 	string		`json: "station_name"`
 }
 
 func (b *Book) Save() (int64, error) {
@@ -220,13 +222,13 @@ func BookFind(name, author string, page, limit int) (books []*Book, total_items 
 	if author != "all" {
 		author_id, err = strconv.Atoi(author)
 		if err != nil {
-			query = fmt.Sprintf(`select * from "book" WHERE "name" LIKE "%s"`, "%"+name+"%")
+			query = fmt.Sprintf(`select * from "book" WHERE "low_name" LIKE "%s"`, "%"+name+"%")
 			checkErr(err)
 		} else {
 			query = fmt.Sprintf(`select * from "book" WHERE "author_id"="%d" and "name" LIKE "%s"`, author_id, "%"+name+"%")
 		}
 	} else {
-		query = fmt.Sprintf(`select * from "book" WHERE "name" LIKE "%s"`, "%"+name+"%")
+		query = fmt.Sprintf(`select * from "book" WHERE "low_name" LIKE "%s"`, "%"+name+"%")
 	}
 
 	// rows count
@@ -242,9 +244,31 @@ func BookFind(name, author string, page, limit int) (books []*Book, total_items 
 
 	// bookd page
 	if author_id != 0 {
-		query = fmt.Sprintf(`select * from "book" WHERE "author_id"="%d" and "name" LIKE "%s" LIMIT "%d" OFFSET "%d"`, author_id, "%"+name+"%", limit, page)
+		query = fmt.Sprintf(`
+		select book.*, author.name as author_name , station.name as station_name
+
+from
+(
+    SELECT *
+    from book
+    WHERE "author_id"="%d" and "name" LIKE "%s" LIMIT "%d" OFFSET "%d"
+) book
+
+LEFT JOIN author author on author.id = book.author_id
+LEFT JOIN station station on station.id = book.station_id`, author_id, "%"+name+"%", limit, page)
 	} else {
-		query = fmt.Sprintf(`select * from "book" WHERE "name" LIKE "%s" LIMIT "%d" OFFSET "%d"`, "%"+name+"%", limit, page)
+		query = fmt.Sprintf(`
+		select book.*, author.name as author_name , station.name as station_name
+
+from
+(
+    SELECT *
+    from book
+    WHERE "name" LIKE "%s" LIMIT "%d" OFFSET "%d"
+) book
+
+LEFT JOIN author author on author.id = book.author_id
+LEFT JOIN station station on station.id = book.station_id`, "%"+name+"%", limit, page)
 	}
 	rows, err := db.Query(query)
 	if err != nil {
@@ -252,9 +276,10 @@ func BookFind(name, author string, page, limit int) (books []*Book, total_items 
 	}
 	defer rows.Close()
 
+	fmt.Println(rows.Columns())
 	for rows.Next() {
 		book := new(Book)
-		err = rows.Scan(&book.Author_id, &book.Date, &book.Id, &book.Name, &book.Station_id, &book.Url, &book.Low_name)
+		err = rows.Scan(&book.Author_id, &book.Date, &book.Id, &book.Name, &book.Station_id, &book.Url, &book.Low_name, &book.Author_name, &book.Station_name)
 		if err != nil {
 			return
 		}

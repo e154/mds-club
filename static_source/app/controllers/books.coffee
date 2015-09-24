@@ -2,15 +2,15 @@
 
 angular
   .module('appControllers')
-  .controller 'booksCtrl', ['$scope', '$rootScope', '$routeSegment', '$location', 'BooksResource'
-  ($scope, $rootScope, $routeSegment, $location, BooksResource) ->
+  .controller 'booksCtrl', ['$scope', '$rootScope', '$routeSegment', '$location', 'BooksResource', 'ngDialog'
+  ($scope, $rootScope, $routeSegment, $location, BooksResource, ngDialog) ->
 
-    $scope.search_name = $rootScope.cache.book.name
     $scope.book_list = []
     $scope.total_items = 1
     $scope.max_size = 5
-    $scope.author = $routeSegment.$routeParams.author || "all"
 
+    $scope.search_name = $rootScope.cache.book.name
+    $scope.author = $routeSegment.$routeParams.author || "all"
     $scope.current_page = $routeSegment.$routeParams.page || 1
     $scope.items_per_page = $routeSegment.$routeParams.limit || 24
 
@@ -31,6 +31,8 @@ angular
           $scope.total_items = data.total_items
 
           $location.path($routeSegment.getSegmentUrl('base.books', page: $scope.current_page, limit: $scope.items_per_page))
+
+#          $scope.openPlayer($scope.book_list[0])
       ,
         (response)=>
           console.log 'error:#{response}'
@@ -60,5 +62,18 @@ angular
 
     updateBooks()
 
+
+#    modal player
+    $scope.openPlayer = (book)=>
+      $scope.book = book
+      ngDialog.open(
+        template: '/templates/playerModal.html'
+        controller: 'playerCtrl'
+        className: 'ngdialog-theme-player'
+        scope: $scope,
+        plain: false,
+        overlay: true,
+        showClose: false
+      )
 
   ]

@@ -14,6 +14,50 @@ ul {
   }
 }
 
-.table_id_col {
-  min-width: 46px;
+.table_id_col { min-width: 46px; }
+.table_book_col { min-width: 300px;}
+.table_date_col { width: 113px;}
+.table_author_col { min-width: 150px;}
+
+.ngdialog-theme-player {
+  .ngdialog-overlay {
+    z-index: -1;
+  }
+  .ngdialog-content {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    position: absolute;
+
+    dl > dt {
+      float: left;
+      clear: left;
+      margin-right: 5px;
+      font-weight: bold;
+      width: 113px;
+      text-align: right;
+    }
+
+    dl > dd {
+      margin-left: 0;
+    }
+
+    .close-player {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      font-weight: 100;
+      text-decoration: none;
+      .x {
+        font-size: 2.3rem;
+        line-height: 1.8rem;
+      }
+      .esc {
+        font-size: 0.8rem;
+      }
+    }
+  }
+
+
 }

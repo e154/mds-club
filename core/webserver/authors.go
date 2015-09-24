@@ -3,13 +3,12 @@ package webserver
 import (
 	"net/http"
 	models "../models"
-	"fmt"
 	"encoding/json"
 	"strconv"
 	"strings"
 )
 
-func authorsHandler(w http.ResponseWriter, r *http.Request) {
+func authorsFindHandler(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseForm()
 
@@ -19,8 +18,6 @@ func authorsHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		search = strings.ToLower(search)
 	}
-
-	fmt.Println(search)
 
 	page, err := strconv.Atoi(r.Form[":page"][0])
 	if err != nil {
@@ -32,16 +29,12 @@ func authorsHandler(w http.ResponseWriter, r *http.Request) {
 		limit = 24
 	}
 
-//	fmt.Printf("search: %s\n",search)
-
 	authors, total_items, err := models.AuthorFind(search, page, limit)
 	if err != nil {
 		checkErr(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	fmt.Println(total_items)
 
 	msg, err := json.Marshal( &map[string]interface {}{
 		"total_items": total_items,
@@ -53,6 +46,32 @@ func authorsHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(msg)
+}
+
+func authorGetByIdHandler(w http.ResponseWriter, r *http.Request) {
+
+	r.ParseForm()
+
+	id, err := strconv.Atoi(r.Form[":id"][0])
+	if err != nil {
+		checkErr(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	author, err := models.AuthorGet(id)
+	if err != nil {
+		checkErr(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	msg, err := json.Marshal( &map[string]interface {}{
+		"author": author,
+	})
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(msg)

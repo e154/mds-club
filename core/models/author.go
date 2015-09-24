@@ -84,16 +84,16 @@ func AuthorGet(val interface{}) (author *Author, err error) {
 
 	var rows *sql.Rows
 	switch reflect.TypeOf(val).Name() {
-	case "int64":
-		id := val.(int64)
-		rows, err = db.Query(fmt.Sprintf(`SELECT * FROM author WHERE id=%d LIMIT 1`, id))
+	case "int":
+		id := val.(int)
+		rows, err = db.Query(fmt.Sprintf(`SELECT * FROM author WHERE id="%d" LIMIT 1`, id))
 		if err != nil {
 			checkErr(err)
 			return
 		}
 		defer rows.Close()
 
-		author.Id = id
+		author.Id = int64(id)
 		for rows.Next() {
 			if rows != nil {
 				rows.Scan(&author.Id, &author.Name, &author.Low_name)
@@ -176,7 +176,7 @@ func AuthorFind(name string, page, items_per_page int) (authors []*Author, total
 
 	authors = make([]*Author, 0)	//[]
 
-	total_rows, err := db.Query(fmt.Sprintf(`SELECT * FROM "author" WHERE "author"."name" LIKE '%s'`, "%"+name+"%"))
+	total_rows, err := db.Query(fmt.Sprintf(`SELECT * FROM "author" WHERE "author"."low_name" LIKE '%s'`, "%"+name+"%"))
 	if err != nil {
 		return
 	}
@@ -186,7 +186,7 @@ func AuthorFind(name string, page, items_per_page int) (authors []*Author, total
 		total_items++
 	}
 
-	rows, err := db.Query(fmt.Sprintf(`SELECT * FROM "author" WHERE "author"."name" LIKE '%s' LIMIT %d OFFSET %d`, "%"+name+"%", items_per_page, page))
+	rows, err := db.Query(fmt.Sprintf(`SELECT * FROM "author" WHERE "author"."low_name" LIKE '%s' LIMIT %d OFFSET %d`, "%"+name+"%", items_per_page, page))
 	if err != nil {
 		return
 	}

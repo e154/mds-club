@@ -1,12 +1,12 @@
 package models
 
 import (
-	"fmt"
 	"reflect"
+	"fmt"
 )
 
 type Station struct {
-	Id			int64			`json: "id"`
+	Id			int64		`json: "id"`
 	Name 		string		`json: "name"`
 }
 
@@ -85,9 +85,9 @@ func StationGet(val interface{}) (station *Station, err error) {
 	station = new(Station)
 
 	switch reflect.TypeOf(val).Name() {
-	case "int64":
+	case "int":
 
-		id := val.(int64)
+		id := val.(int)
 		rows, err := db.Query(fmt.Sprintf("SELECT name FROM station WHERE id=%d LIMIT 1", id))
 		if err != nil {
 			checkErr(err)
@@ -95,7 +95,7 @@ func StationGet(val interface{}) (station *Station, err error) {
 		}
 		defer rows.Close()
 
-		station.Id = id
+		station.Id = int64(id)
 		for rows.Next() {
 			if rows != nil {
 				rows.Scan(&station.Name)

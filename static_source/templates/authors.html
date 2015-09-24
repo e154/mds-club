@@ -16,7 +16,7 @@
         <tr ng-repeat="author in authors_list">
 
             <td>{{$index + (current_page - 1) * items_per_page + 1}}</td>
-            <td><a ng-href="{{author.Id}}" truncate-text="36">{{author.Name}}</a></td>
+            <td><a ng-href="{{ 'base.books' | routeSegmentUrl: {page: 1, limit: 24, author: author.Id} }}" truncate-text="36">{{author.Name}}</a></td>
 
         </tr>
         </tbody>

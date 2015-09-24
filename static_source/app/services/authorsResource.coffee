@@ -2,8 +2,8 @@
 
 AuthorsResource = ($resource) ->
     $resource '/api/authors/:a1/:a2/:a3/:a4/:a5',
-      a1:"@a1"
-      a2:"@a2"
+      a1: "@a1"
+      a2: "@a2"
       a3: "@a3"
       a4: "@a4"
       a5: "@a5"

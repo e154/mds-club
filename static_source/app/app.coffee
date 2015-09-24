@@ -15,6 +15,7 @@ app = angular
     'ngSocket'
     'ngMaterial'
     'ui.pagination'
+    'ngDialog'
   ])
 
 angular.module('app')
@@ -67,19 +68,6 @@ angular.module('app')
 angular.module('app')
   .run ['$rootScope'
   ($rootScope) =>
-
-#    gui = require('nw.gui')
-#    win = gui.Window.get()
-#    tray
-#
-#    win.on 'minimize', () ->
-#      this.hide()
-#      tray = new gui.Tray
-#        icon: '/images/icon.png'
-#      tray.on 'click', () ->
-#        win.show()
-#        this.remove()
-#        tray = null
 
     $rootScope.cache =
       author:

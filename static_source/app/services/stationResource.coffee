@@ -1,7 +1,7 @@
 'use strict'
 
-BooksResource = ($resource) ->
-    $resource '/api/books/:a1/:a2/:a3/:a4/:a5',
+StationResource = ($resource) ->
+    $resource '/api/station/:a1/:a2/:a3/:a4/:a5',
       a1: "@a1"
       a2: "@a2"
       a3: "@a3"
@@ -15,4 +15,4 @@ BooksResource = ($resource) ->
 
 angular
     .module('appServices')
-    .factory 'BooksResource', ['$resource', BooksResource]
+    .factory 'StationResource', ['$resource', StationResource]
