@@ -86,7 +86,7 @@ func AuthorGet(val interface{}) (author *Author, err error) {
 	switch reflect.TypeOf(val).Name() {
 	case "int64":
 		id := val.(int64)
-		rows, err = db.Query(fmt.Sprintf(`SELECT name FROM author WHERE id=%d LIMIT 1`, id))
+		rows, err = db.Query(fmt.Sprintf(`SELECT * FROM author WHERE id=%d LIMIT 1`, id))
 		if err != nil {
 			checkErr(err)
 			return
@@ -96,14 +96,14 @@ func AuthorGet(val interface{}) (author *Author, err error) {
 		author.Id = id
 		for rows.Next() {
 			if rows != nil {
-				rows.Scan(&author.Name, &author.Low_name)
+				rows.Scan(&author.Id, &author.Name, &author.Low_name)
 				return
 			}
 		}
 
 	case "string":
 		name := val.(string)
-		rows, err = db.Query(fmt.Sprintf(`SELECT id FROM author WHERE name="%s" LIMIT 1`, name))
+		rows, err = db.Query(fmt.Sprintf(`SELECT * FROM author WHERE name="%s" LIMIT 1`, name))
 		if err != nil {
 			checkErr(err)
 			return
@@ -113,7 +113,7 @@ func AuthorGet(val interface{}) (author *Author, err error) {
 		author.Name = name
 		for rows.Next() {
 			if rows != nil {
-				rows.Scan(&author.Id, &author.Low_name)
+				rows.Scan(&author.Id, &author.Name, &author.Low_name)
 				return
 			}
 		}

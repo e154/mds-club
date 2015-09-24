@@ -20,7 +20,7 @@ type Book struct {
 
 func (b *Book) Save() (int64, error) {
 
-	stmt, err := db.Prepare("INSERT INTO book(author_id, name, low_name, date, station_id, url) values(?,?,?,?,?)")
+	stmt, err := db.Prepare("INSERT INTO book(author_id, name, low_name, date, station_id, url) values(?,?,?,?,?,?)")
 	if err != nil {
 		checkErr(err)
 		return 0, err
