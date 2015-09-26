@@ -9,22 +9,33 @@ angular
     $scope.total_items = 1
     $scope.max_size = 5
 
-    $scope.search_name = $rootScope.cache.book.name
-    $scope.author = $routeSegment.$routeParams.author || "all"
+    $scope.search_book_name = $rootScope.cache.book.name
+    if $routeSegment.$routeParams.author == "all"
+      $scope.search_author_name = ""
+    else
+      $scope.search_author_name = $routeSegment.$routeParams.author
+
     $scope.current_page = $routeSegment.$routeParams.page || 1
-    $scope.items_per_page = $routeSegment.$routeParams.limit || 24
+    $scope.items_per_page = ""
 
-    updateBooks = ()=>
-      if !$scope.search_name?
-        $scope.search_name = ""
+    varsUpdate = ()=>
 
-      $rootScope.cache.book.name = $scope.search_name
+      $scope.items_per_page = $routeSegment.$routeParams.limit || 24
+
+    $scope.updateBooks = updateBooks = ()=>
+
+      varsUpdate()
+
+      if !$scope.search_book_name?
+        $scope.search_book_name = ""
+
+      $rootScope.cache.book.name = $scope.search_book_name
 
       BooksResource.get
         'a1': 'page~'+$scope.current_page
         'a2': 'limit~'+$scope.items_per_page
-        'a3': 'author~'+$scope.author
-        'a4': 'search='+$scope.search_name
+        'a3': 'author~'+ ($scope.search_author_name || "all")
+        'a4': 'search='+ ($scope.search_book_name || "all")
       ,
         (data)=>
           $scope.book_list = angular.copy(data.books)
@@ -37,14 +48,6 @@ angular
         (response)=>
           console.log 'error:#{response}'
 
-    $scope.$watch 'search_name',
-      (val, old_val)=>
-        if val == old_val
-          return
-
-        $scope.current_page = 1
-        updateBooks()
-
     firstTime = true
     $scope.$watch 'current_page',
       (val, old_val)=>
@@ -53,7 +56,6 @@ angular
           return
 
         if firstTime
-          console.log(firstTime)
           firstTime = false
           if val == 1
             $scope.current_page = old_val
@@ -76,4 +78,6 @@ angular
         showClose: false
       )
 
+#    $scope.$on '$locationChangeSuccess', ()=>
+#      updateBooks()
   ]

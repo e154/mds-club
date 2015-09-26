@@ -16,6 +16,11 @@ app = angular
     'ngMaterial'
     'ui.pagination'
     'ngDialog'
+    "ngSanitize"
+    "com.2fdevs.videogular"
+    "com.2fdevs.videogular.plugins.controls"
+    "com.2fdevs.videogular.plugins.overlayplay"
+    "com.2fdevs.videogular.plugins.poster"
   ])
 
 angular.module('app')
@@ -23,7 +28,6 @@ angular.module('app')
   ($routeProvider, $locationProvider, $routeSegmentProvider, $mdThemingProvider) ->
     $routeSegmentProvider
       .when '/',                                                  'base.history'
-      .when '/authors/page~:page/limit~:limit',                   'base.authors'
       .when '/books/page~:page/limit~:limit/author~:author',      'base.books'
       .when '/about',                                             'base.about'
       .when '/lock',                                              'lock'
@@ -36,10 +40,6 @@ angular.module('app')
         .segment 'books',
           templateUrl: '/templates/books.html'
           controller: 'booksCtrl'
-
-        .segment 'authors',
-          templateUrl: '/templates/authors.html'
-          controller: 'authorsCtrl'
 
         .segment 'history',
           default: true

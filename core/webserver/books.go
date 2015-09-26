@@ -14,13 +14,20 @@ func booksHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
 	search := r.Form[":search"][0]
-	if search == "" {
+	if search == "all" {
 		search = "%"
 	} else {
 		search = strings.ToLower(search)
 	}
 
 	author := r.Form[":author"][0]
+	if author == "all" {
+		author = "%"
+	} else {
+		author = strings.ToLower(author)
+	}
+
+	fmt.Printf("author: %s\n", author)
 
 	page, err := strconv.Atoi(r.Form[":page"][0])
 	if err != nil {

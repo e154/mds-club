@@ -1,14 +1,14 @@
 <!--base-->
 <md-content>
 <md-tabs md-stretch-tabs md-selected="selectedIndex">
-    <md-tab ng-class="{'md-active': ('base.history' | routeSegmentStartsWith)}">
+    <md-tab md-active="{'md-active': ('base.history' | routeSegmentStartsWith)}">
         <a ng-href="{{ 'base.history' | routeSegmentUrl }}">История</a>
     </md-tab>
-    <md-tab ng-class="{'md-active': ('base.books' | routeSegmentStartsWith)}">
+    <md-tab md-active="{'md-active': ('base.books' | routeSegmentStartsWith)}">
         <a ng-href="{{ 'base.books' | routeSegmentUrl: {page: 1, limit: 24, author: 'all'} }}">Книги</a>
     </md-tab>
-    <md-tab ng-class="{'md-active': ('base.authors' | routeSegmentStartsWith)}">
-        <a ng-href="{{ 'base.authors' | routeSegmentUrl: {page: 1, limit: 24} }}">Авторы</a>
+    <md-tab md-active="{'md-active': ('base.about' | routeSegmentStartsWith)}">
+        <a ng-href="{{ 'base.about' | routeSegmentUrl }}">О программе</a>
     </md-tab>
 </md-tabs>
 
