@@ -17,6 +17,7 @@ module.exports = {
         source: [
             source + "/app/app.coffee",
             source + "/app/services/**/*.coffee",
+            source + "/app/filters/**/*.coffee",
             source + "/app/directives/**/*.coffee",
             source + "/app/controllers/**/*.coffee"
         ],

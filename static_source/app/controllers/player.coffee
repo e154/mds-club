@@ -15,9 +15,6 @@ angular
       features: ['playpause','current','progress','duration','tracks','volume','fullscreen']
     }
 
-    $scope.trustSrc = (src)=>
-      $sce.trustAsResourceUrl(src)
-
     $scope.song = {
       src: "http://mds.kallisto.ru/pionerfm/Dzherom_K._Dzherom_-_Kot_Dika_Dankermana.mp3"
       title: "Dzherom_K._Dzherom_-_Kot_Dika_Dankermana"
