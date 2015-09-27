@@ -16,11 +16,8 @@ app = angular
     'ngMaterial'
     'ui.pagination'
     'ngDialog'
-    "ngSanitize"
-    "com.2fdevs.videogular"
-    "com.2fdevs.videogular.plugins.controls"
-    "com.2fdevs.videogular.plugins.overlayplay"
-    "com.2fdevs.videogular.plugins.poster"
+    'ngSanitize'
+    'ui.audio-player'
   ])
 
 angular.module('app')

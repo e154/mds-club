@@ -81,6 +81,8 @@ angular
           showClose: false
         )
 
+        $scope.player.closePromise.then (date)=>
+          $scope.player = null
 
 #    $scope.$on '$locationChangeSuccess', ()=>
 #      updateBooks()

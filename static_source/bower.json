@@ -22,13 +22,8 @@
     "html5-boilerplate": "~5.2.0",
     "ngDialog": "~0.5.4",
     "ngSocket": "~0.2.1",
-    "videogular": "~1.2.8",
-    "videogular-buffering": "~1.2.8",
-    "videogular-controls": "~1.2.8",
-    "videogular-overlay-play": "~1.2.8",
-    "videogular-poster": "~1.2.8",
-    "videogular-themes-default": "~1.2.8",
-    "angular-i18n": "~1.4.6"
+    "angular-i18n": "~1.4.6",
+    "angular-player": "e154/angular-player#"
   },
   "overrides": {
     "html5-boilerplate": {

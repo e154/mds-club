@@ -4,50 +4,30 @@
         <div class="esc">ESC</div>
     </a>
 
-    <div class="dialog-head">
+    <div class="container">
+        <div class="dialog-head" style="margin-top: 90px;">
+            <dl>
+                <dt>Автор:</dt>
+                <dd><a ng-href="{{ 'base.books' | routeSegmentUrl: {page: 1, limit: 24, author: book.Author_id} }}" ng-click="closeThisDialog()">{{book.Author_name}}</a></dd>
+                <dt>Название:</dt>
+                <dd>{{book.Name}}</dd>
+                <dt ng-if="book.Date">В эфире:</dt>
+                <dd ng-if="book.Date">{{book.Date | date}}</dd>
+                <dt>Станция:</dt>
+                <dd>{{book.Station_name}}</dd>
+            </dl>
+        </div>
 
-        <dl>
-            <dt>Автор:</dt>
-            <dd><a ng-href="{{ 'base.books' | routeSegmentUrl: {page: 1, limit: 24, author: book.Author_id} }}" ng-click="closeThisDialog()">{{book.Author_name}}</a></dd>
-            <dt>Название:</dt>
-            <dd>{{book.Name}}</dd>
-            <dt ng-if="book.Date">В эфире:</dt>
-            <dd ng-if="book.Date">{{book.Date | date}}</dd>
-            <dt>Станция:</dt>
-            <dd>{{book.Station_name}}</dd>
-        </dl>
-    </div>
+        <div class="dialog-content">
+            <!-- HTML5 Audio Player -->
+            <audio ui-player="exp" options="options" class="progression-single progression-skin progression-audio-player" controls="controls" preload="none" style="width: 100%;">
+                <source src="http://mds.kallisto.ru/pionerfm/Dzherom_K._Dzherom_-_Kot_Dika_Dankermana.mp3" type="audio/mp3" />
+            </audio>
 
-    <div class="dialog-content">
+        </div>
 
-        <videogular vg-theme="config.theme">
-            <vg-media vg-src="config.sources"
-                      vg-tracks="config.tracks"
-                      vg-type=”audio”>
-            </vg-media>
-
-            <vg-controls>
-                <vg-play-pause-button></vg-play-pause-button>
-                <vg-time-display>{{ currentTime | date:'mm:ss' }}</vg-time-display>
-                <vg-scrub-bar>
-                    <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
-                </vg-scrub-bar>
-                <vg-time-display>{{ timeLeft | date:'mm:ss' }}</vg-time-display>
-                <vg-volume>
-                    <vg-mute-button></vg-mute-button>
-                    <vg-volume-bar></vg-volume-bar>
-                </vg-volume>
-                <vg-fullscreen-button></vg-fullscreen-button>
-            </vg-controls>
-
-            <vg-overlay-play></vg-overlay-play>
-            <vg-poster vg-url='controller.config.plugins.poster'></vg-poster>
-
-        </videogular>
-
-    </div>
-
-    <div class="dialog-footer">
+        <div class="dialog-footer">
+        </div>
 
     </div>
 
