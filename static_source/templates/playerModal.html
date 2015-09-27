@@ -21,7 +21,7 @@
         <div class="dialog-content">
             <!-- HTML5 Audio Player -->
             <audio ui-player="exp" options="options" class="progression-single progression-skin progression-audio-player" controls="controls" preload="none" style="width: 100%;">
-                <source ng-src="{{song.src | trusted}}" type="audio/mp3" />
+                <source ng-src="{{files[0].Url | trusted}}" type="audio/mp3" />
             </audio>
 
         </div>

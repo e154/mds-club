@@ -99,8 +99,8 @@ func BookGet(val interface{}) (book *Book, err error) {
 	book = new(Book)
 
 	switch reflect.TypeOf(val).Name() {
-	case "int64":
-		var id int64 = val.(int64)
+	case "int":
+		id := val.(int)
 		rows, err := db.Query(fmt.Sprintf(`SELECT * FROM book WHERE id=%d LIMIT 1`, id))
 		if err != nil {
 			checkErr(err)
@@ -111,7 +111,7 @@ func BookGet(val interface{}) (book *Book, err error) {
 		for rows.Next() {
 			if rows != nil {
 				rows.Scan(&book.Author_id, &book.Date, &book.Id, &book.Name, &book.Low_name, &book.Station_id, &book.Url)
-				book.Id = id
+				book.Id = int64(id)
 				return book, nil
 			}
 		}
