@@ -1,14 +1,16 @@
 <div class="page">
 
-    <div layout="row">
-        <md-input-container flex>
-            <label>Книга</label>
-            <input md-maxlength="30" name="search_book_name" ng-model="search_book_name" ng-change="current_page=1;updateBooks()">
-        </md-input-container>
-        <md-input-container flex>
-            <label>Автор</label>
-            <input md-maxlength="30" name="search_author_name" ng-model="search_author_name" ng-change="current_page=1;updateBooks()">
-        </md-input-container>
+    <div class="block">
+        <div layout="row">
+            <md-input-container flex>
+                <label>Книга</label>
+                <input md-maxlength="30" name="search_book_name" ng-model="search_book_name" ng-change="current_page=1;updateBooks()">
+            </md-input-container>
+            <md-input-container flex>
+                <label>Автор</label>
+                <input md-maxlength="30" name="search_author_name" ng-model="search_author_name" ng-change="current_page=1;updateBooks()">
+            </md-input-container>
+        </div>
     </div>
 
     <div layout="row" ng-if="total_items">
