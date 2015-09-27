@@ -3,7 +3,6 @@ package webserver
 import (
 	"net/http"
 	models "../models"
-	"fmt"
 	"encoding/json"
 	"strconv"
 	"strings"
@@ -27,8 +26,6 @@ func booksHandler(w http.ResponseWriter, r *http.Request) {
 		author = strings.ToLower(author)
 	}
 
-	fmt.Printf("author: %s\n", author)
-
 	page, err := strconv.Atoi(r.Form[":page"][0])
 	if err != nil {
 		page = 1
@@ -45,8 +42,6 @@ func booksHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	fmt.Println(total_items)
 
 	msg, err := json.Marshal( &map[string]interface {}{
 		"total_items": total_items,

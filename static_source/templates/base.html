@@ -1,24 +1,22 @@
 <!--base-->
 <md-content>
-<md-tabs md-stretch-tabs md-selected="selectedIndex">
-    <md-tab md-active="{'md-active': ('base.history' | routeSegmentStartsWith)}">
-        <a ng-href="{{ 'base.history' | routeSegmentUrl }}">История</a>
-    </md-tab>
-    <md-tab md-active="{'md-active': ('base.books' | routeSegmentStartsWith)}">
-        <a ng-href="{{ 'base.books' | routeSegmentUrl: {page: 1, limit: 24, author: 'all'} }}">Книги</a>
-    </md-tab>
-    <md-tab md-active="{'md-active': ('base.about' | routeSegmentStartsWith)}">
-        <a ng-href="{{ 'base.about' | routeSegmentUrl }}">О программе</a>
-    </md-tab>
-</md-tabs>
-
-<div class="page">
-    <md-button class="md-icon-button md-primary" aria-label="Settings" ng-click="back()">
-        Назад
-    </md-button>
+<div class="mainmenu">
+    <md-tabs md-stretch-tabs md-selected="selectedIndex" class="container">
+        <md-tab md-active="{'md-active': ('base.history' | routeSegmentStartsWith)}">
+            <a ng-href="{{ 'base.history' | routeSegmentUrl }}">История</a>
+        </md-tab>
+        <md-tab md-active="{'md-active': ('base.books' | routeSegmentStartsWith)}">
+            <a ng-href="{{ 'base.books' | routeSegmentUrl: {page: 1, limit: 24, author: 'all'} }}">Книги</a>
+        </md-tab>
+        <md-tab md-active="{'md-active': ('base.about' | routeSegmentStartsWith)}">
+            <a ng-href="{{ 'base.about' | routeSegmentUrl }}">О программе</a>
+        </md-tab>
+    </md-tabs>
 </div>
 
-<div app-view-segment="1"></div>
+<div class="container">
+    <div app-view-segment="1"></div>
+</div>
 
 </md-content>
 <!--/base-->

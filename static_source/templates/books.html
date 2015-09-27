@@ -1,6 +1,6 @@
 <div class="page">
 
-    <div layout layout-sm="column">
+    <div layout="row">
         <md-input-container flex>
             <label>Книга</label>
             <input md-maxlength="30" name="search_book_name" ng-model="search_book_name" ng-change="current_page=1;updateBooks()">
@@ -11,35 +11,39 @@
         </md-input-container>
     </div>
 
-    <table ng-if="book_list">
-        <thead>
-        <tr>
-            <td class="table_id_col">id</td>
-            <td class="table_book_col">книга</td>
-            <td class="table_author_col">автор <a ng-href="{{ 'base.books' | routeSegmentUrl: {page: 1, limit: 24, author: 'all' } }}" ng-if="author != 'all'" target="_self" >x</a></td>
-            <td class="table_date_col">читалась</td>
-            <td>станция</td>
-        </tr>
-        </thead>
-        <tbody>
-        <tr ng-repeat="book in book_list">
-
-            <td>{{$index + (current_page - 1) * items_per_page + 1}}</td>
-            <td><a href="" ng-click="openPlayer(book)" truncate-text="36">{{book.Name}}</a></td>
-            <td><a ng-href="{{ 'base.books' | routeSegmentUrl: {page: 1, limit: 24, author: book.Author_name} }}" target="_self" truncate-text="36">{{book.Author_name}}</a></td>
-            <td>{{book.Date | date}}</td>
-            <td truncate-text="15">{{book.Station_name}}</td>
-
-        </tr>
-        </tbody>
-    </table>
-
-    <div ng-if="book_list.length == 0" style="align-content: center;">Ни чего не найдено</div>
-
-    <div ng-show="total_items > items_per_page">
-        <pagination boundary-links="true" total-items="total_items" items-per-page="items_per_page" max-size="max_size" ng-model="current_page" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></pagination>
+    <div layout="row" ng-if="total_items">
+        <table class="block">
+            <thead class="table_book_header">
+                <tr>
+                    <td class="table_id_col">id</td>
+                    <td class="table_book_col">книга <a href="" ng-if="search_book_name" ng-click="search_book_name='';updateBooks()" target="_self" >x</a></td>
+                    <td class="table_author_col">автор <a ng-href="{{ 'base.books' | routeSegmentUrl: {page: 1, limit: 24, author: 'all' } }}" ng-if="search_author_name" target="_self" >x</a></td>
+                    <td class="table_date_col">читалась</td>
+                    <td>станция</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="book in book_list">
+                    <td>{{$index + (current_page - 1) * items_per_page + 1}}</td>
+                    <td><a href="" ng-click="openPlayer(book)" truncate-text="30">{{book.Name}}</a></td>
+                    <td><a ng-href="{{ 'base.books' | routeSegmentUrl: {page: 1, limit: 24, author: book.Author_name} }}" target="_self" truncate-text="20">{{book.Author_name}}</a></td>
+                    <td>{{book.Date | date}}</td>
+                    <td truncate-text="15">{{book.Station_name}}</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 
-    <span ng-if="total_items > 0" style="text-align: right;">Всего найдено: {{total_items}}</span>
+    <div layout="row" ng-if="total_items">
+         <div class="block">Всего найдено: {{total_items}}</div>
+    </div>
+
+    <div layout="row" layout-align="center center" ng-if="book_list.length == 0">
+        <span class="block">Ни чего не найдено</span>
+    </div>
+
+    <div layout="row" layout-align="center center" ng-show="total_items > items_per_page">
+        <pagination boundary-links="true" total-items="total_items" items-per-page="items_per_page" max-size="max_size" ng-model="current_page" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></pagination>
+    </div>
 
 </div>

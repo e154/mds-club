@@ -62,7 +62,6 @@ angular.module('app')
     $routeProvider.otherwise
       redirectTo: '/'
 
-    $mdThemingProvider.theme('purple')
   ]
 
 angular.module('app')
@@ -76,4 +75,7 @@ angular.module('app')
       book:
         id: 0
         name: ""
+
+    $rootScope.title = "mds club desktop client"
+
   ]
