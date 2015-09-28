@@ -19,8 +19,15 @@
                 </dl>
             </div>
             <div flex>
-                qwe
-                <i class="fa fa-battery-half"></i>
+                <div ng-if="files">Найдено: {{files.length}} зеркала</div>
+                <ul ng-if="files">
+                    <li ng-repeat="file in files">
+                        <a href="{{file.Url | trusted}}" download="{{book.Name}}.mp3">
+                            <i class="fa fa-cloud-download"></i> <span truncate-text="36">{{file.Name}}</span>
+                        </a>
+                    </li>
+                </ul>
+
             </div>
         </div>
 

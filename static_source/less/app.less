@@ -145,6 +145,10 @@ ul {
   }
 }
 
+.relative {
+  position: relative;
+}
+
 .block {
   margin-bottom: 15px;
 }
@@ -170,17 +174,24 @@ ul {
     margin-top: 18%;
     position: relative;
 
-    dl > dt {
-      float: left;
-      clear: left;
-      margin-right: 5px;
-      font-weight: bold;
-      width: 113px;
-      text-align: right;
+    ul > li {
+      margin-left: 0;
     }
 
-    dl > dd {
-      margin-left: 0;
+    dl {
+      margin: 0;
+      & > dt {
+        float: left;
+        clear: left;
+        margin-right: 5px;
+        font-weight: bold;
+        width: 113px;
+        text-align: right;
+      }
+
+      & > dd {
+        margin-left: 0;
+      }
     }
 
     .close-player {
@@ -236,5 +247,14 @@ ul.pagination {
         color: #000011;
       }
     }
+  }
+}
+
+/*******************
+ * etc
+ *******************/
+.download-container {
+  a {
+    font-size: 0.9rem;
   }
 }
