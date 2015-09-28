@@ -47,6 +47,8 @@ func Run(address string) {
 	r.Get("/api/station/id~{id:[0-9]+}", stationHandler)
 	r.Get("/api/books/page~{page:[0-9]+}/limit~{limit:[0-9]+}/author~{author}/search={search:[а-яА-Яa-zA-Z0-9]*}", booksHandler)
 	r.Get("/api/file/list/book~{book:[0-9]+}", getBookFileListHandler)
+	r.Post("/api/history/book~{book:[0-9]+}", addHistoryHandler)
+	r.Get("/api/history/page~{page:[0-9]+}/limit~{limit:[0-9]+}", getHistoryHandler)
 	r.Get("/", homeHandler)
 	http.Handle("/", r)
 
