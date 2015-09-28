@@ -21,7 +21,7 @@
                     <td class="table_book_col">книга <a href="" ng-if="search_book_name" ng-click="search_book_name='';updateBooks()" target="_self" >x</a></td>
                     <td class="table_author_col">автор <a ng-href="{{ 'base.books' | routeSegmentUrl: {page: 1, limit: 24, author: 'all' } }}" ng-if="search_author_name" target="_self" >x</a></td>
                     <td class="table_date_col">читалась</td>
-                    <td>станция</td>
+                    <td class="table_station_col">станция</td>
                 </tr>
             </thead>
             <tbody>

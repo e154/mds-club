@@ -2,8 +2,8 @@
 
 angular
   .module('appControllers')
-  .controller 'playerCtrl', ['$scope', 'FileResource'
-  ($scope, FileResource) ->
+  .controller 'playerCtrl', ['$scope', 'FileResource', 'HistoryResource'
+  ($scope, FileResource, HistoryResource) ->
 
     if !$scope.book
       $scope.closeThisDialog()
@@ -17,6 +17,18 @@ angular
       playlist: true
       playlistposition: 'bottom'
     }
+
+    addToHistory = (id)=>
+      HistoryResource.post
+        'a1': id
+      ,
+        {}
+      ,
+        (data)=>
+          console.log(data)
+      ,
+        (response)=>
+          console.log 'error:#{response}'
 
     $scope.files = []
     FileResource.get
