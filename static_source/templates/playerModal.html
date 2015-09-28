@@ -32,14 +32,10 @@
         </div>
 
         <div layout="row">
-            <div class="dialog-content" id="dialog-content">
-
-            </div>
             <!-- HTML5 Audio Player -->
             <audio preload="auto" controls style="width: 100%;" class="audio">
                 <source ng-repeat="file in files" ng-src="{{file.Url | trusted}}" type="audio/mp3" />
             </audio>
-
         </div>
 
     </div>
