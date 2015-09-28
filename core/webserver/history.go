@@ -8,6 +8,11 @@ import (
 	models "../models"
 )
 
+var (
+	last_book_id int
+	last_time time.Time
+)
+
 func addHistoryHandler(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseForm()
@@ -17,6 +22,12 @@ func addHistoryHandler(w http.ResponseWriter, r *http.Request) {
 		checkErr(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
+	}
+
+	if last_book_id == book_id {
+		return
+	} else {
+		last_book_id = book_id
 	}
 
 	history := new(models.History)

@@ -25,7 +25,7 @@ angular
         {}
       ,
         (data)=>
-          console.log(data)
+          #
       ,
         (response)=>
           console.log 'error:#{response}'
@@ -34,7 +34,6 @@ angular
     $timeout ()->
       $scope.audio = document.getElementsByTagName('audio')[0]
       $scope.audio.addEventListener 'play', (event)=>
-        console.log("play")
         addToHistory($scope.book.Id)
 
     , 1000
