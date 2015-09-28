@@ -31,9 +31,12 @@
             </div>
         </div>
 
-        <div layout="row" class="dialog-content">
+        <div layout="row">
+            <div class="dialog-content" id="dialog-content">
+
+            </div>
             <!-- HTML5 Audio Player -->
-            <audio ui-player="exp" options="options" class="progression-playlist progression-skin progression-audio-player" controls="controls" preload="none" style="width: 100%;">
+            <audio preload="auto" controls style="width: 100%;" class="audio">
                 <source ng-repeat="file in files" ng-src="{{file.Url | trusted}}" type="audio/mp3" />
             </audio>
 

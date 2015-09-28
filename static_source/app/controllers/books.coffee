@@ -43,7 +43,7 @@ angular
 
           $location.path($routeSegment.getSegmentUrl('base.books', page: $scope.current_page, limit: $scope.items_per_page))
 
-#          $scope.openPlayer($scope.book_list[0])
+          $scope.openPlayer($scope.book_list[0])
       ,
         (response)=>
           console.log 'error:#{response}'

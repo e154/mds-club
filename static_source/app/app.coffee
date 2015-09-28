@@ -17,7 +17,6 @@ app = angular
     'ui.pagination'
     'ngDialog'
     'ngSanitize'
-    'ui.player'
   ])
 
 angular.module('app')
