@@ -5,7 +5,6 @@ import (
 	"strconv"
 	models "../models"
 	"encoding/json"
-	"fmt"
 )
 
 func getBookFileListHandler(w http.ResponseWriter, r *http.Request) {
@@ -18,8 +17,6 @@ func getBookFileListHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	fmt.Println(book_id)
 
 	book, err := models.BookGet(book_id)
 	if err != nil {

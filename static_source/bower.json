@@ -23,7 +23,8 @@
     "ngDialog": "~0.5.4",
     "ngSocket": "~0.2.1",
     "angular-i18n": "~1.4.6",
-    "angular-player": "e154/angular-player#"
+    "angular-player": "e154/angular-player#",
+    "font-awesome": "~4.4.0"
   },
   "overrides": {
     "html5-boilerplate": {
@@ -35,6 +36,11 @@
     "angular-i18n": {
       "main": [
         "angular-locale_ru.js"
+      ]
+    },
+    "font-awesome": {
+      "main": [
+        "css/font-awesome.min.css"
       ]
     }
   }

@@ -12,7 +12,10 @@ angular
       audioWidth: "100%"
       audioHeight: 40
       startVolume: 0.5
-      features: ['playpause','current','progress','duration','tracks','volume','fullscreen']
+      loop: false
+      features: ['playpause','current','progress','duration','tracks','volume','fullscreen', 'playlistfeature', 'playlist', 'prevtrack', 'nexttrack']
+      playlist: true
+      playlistposition: 'bottom'
     }
 
     $scope.files = []
@@ -28,7 +31,6 @@ angular
         angular.forEach data.files, (file, key)->
           if file.Url && file.Url.indexOf("http://") > -1
             $scope.files.push(file)
-        console.log($scope.files)
     ,
       (response)=>
         console.log 'error:#{response}'

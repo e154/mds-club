@@ -40,5 +40,12 @@ module.exports = {
         ],
         dest: source + '/css',
         watch: source + '/less/**/*.less'
+    },
+    copy: {
+        source: [
+            source + '/bower_components/font-awesome/fonts/**/*'
+        ],
+        dest: source,
+        source_dir: source + '/bower_components/font-awesome'
     }
 };

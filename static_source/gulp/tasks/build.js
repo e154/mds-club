@@ -11,6 +11,7 @@ gulp.task('default', function(cb) {
         'build_coffee_js',
         'build_lib_css',
         'build_less',
+        'build_copy',
         'watch'
     );
 });
@@ -20,6 +21,7 @@ gulp.task('pack', function(cb) {
         'build_lib_js',
         'build_coffee_js',
         'build_lib_css',
-        'build_less'
+        'build_less',
+        'build_copy'
     );
 });
