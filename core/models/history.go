@@ -6,9 +6,18 @@ import (
 )
 
 type History struct {
-	Id			int64		`json:"id"`
-	Book_id		int64		`json: "book_id"`
-	Date		time.Time	`json: "date"`
+	Id				int64		`json:"id"`
+	Book_id			int64		`json: "book_id"`
+	Date			time.Time	`json: "date"`
+}
+
+type HistoryRes struct {
+	Id				int64		`json:"id"`
+	Book_name		string		`json:"book_name"`
+	Book_Id			int64		`json:"book_id"`
+	Author_name		string		`json:"author_name"`
+	Open_date		interface{}	`json:"open_date"`
+	Station_name	string		`json:"station_name"`
 }
 
 func (h *History) Save() (int64, error) {
@@ -51,7 +60,7 @@ func (h *History) Remove(id int64) (err error) {
 	return
 }
 
-func HistoryGetPage(page, limit int) (history []*History, total_items int32, err error) {
+func HistoryGetPage(page, limit int) (history []*HistoryRes, total_items int32, err error) {
 
 	if page > 0 {
 		page -= 1
@@ -59,7 +68,7 @@ func HistoryGetPage(page, limit int) (history []*History, total_items int32, err
 		page = 0
 	}
 
-	history = make([]*History, 0)
+	history = make([]*HistoryRes, 0)
 
 	// rows count
 	total_rows, err := db.Query(`select * from history`)
@@ -72,7 +81,17 @@ func HistoryGetPage(page, limit int) (history []*History, total_items int32, err
 		total_items++
 	}
 
-	query := fmt.Sprintf(`select * from history order by history.data LIMIT "%d" OFFSET "%d"`, limit, page)
+	query := fmt.Sprintf(`
+		select history.id as id, book.id as book_id, book.name as book_name, author.name as author_name, history.date as open_date, station.name as station_name
+
+		from history
+		JOIN book on history.book_id = book.id
+		join author on book.author_id = author.id
+		join station on book.station_id = station.id
+
+		order by id
+		LIMIT "%d" OFFSET "%d"
+	`, limit, page)
 	rows, err := db.Query(query)
 	if err != nil {
 		return
@@ -80,8 +99,8 @@ func HistoryGetPage(page, limit int) (history []*History, total_items int32, err
 	defer rows.Close()
 
 	for rows.Next() {
-		story := new(History)
-		err = rows.Scan(&story.Id, &story.Date, &story.Book_id)
+		story := new(HistoryRes)
+		err = rows.Scan(&story.Id, &story.Book_Id, &story.Book_name, &story.Author_name, &story.Open_date, &story.Station_name)
 		if err != nil {
 			return
 		}

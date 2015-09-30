@@ -99,65 +99,92 @@ func BookRemove(id int64) (err error) {
 func BookGet(val interface{}) (book *Book, err error) {
 
 	book = new(Book)
+	var inject string
 
 	switch reflect.TypeOf(val).Name() {
 	case "int":
 		id := val.(int)
-		rows, err := db.Query(fmt.Sprintf(`SELECT * FROM book WHERE id=%d LIMIT 1`, id))
-		if err != nil {
-			checkErr(err)
-			return nil, err
-		}
-		defer rows.Close()
-
-		for rows.Next() {
-			if rows != nil {
-				rows.Scan(&book.Author_id, &book.Date, &book.Id, &book.Name, &book.Low_name, &book.Station_id, &book.Url)
-				book.Id = int64(id)
-				return book, nil
-			}
-		}
+		book.Id = int64(id)
+		inject = fmt.Sprintf(`book.id="%d"`, id)
 
 	case "string":
 		var name string = strConv(val.(string))
-		rows, err := db.Query(fmt.Sprintf(`SELECT * FROM book WHERE name="%s" LIMIT 1`, name))
-		if err != nil {
-			checkErr(err)
-			return nil, err
-		}
-		defer rows.Close()
+		book.Name = name
+		inject = fmt.Sprintf(`book.name="%s"`, name)
+	}
 
-		for rows.Next() {
-			if rows != nil {
-				rows.Scan(&book.Author_id, &book.Date, &book.Id, &book.Name, &book.Low_name, &book.Station_id, &book.Url)
-				book.Name = name
-				return book, nil
+
+	rows, err := db.Query(fmt.Sprintf(`
+		select book.*, a.name as author_name, s.name as station_name, history.date as last_play, count(history.date) as play_count
+
+		from book
+
+		JOIN station as s on s.id = book.station_id
+		JOIN author as a on a.id = book.author_id
+		left JOIN history  history on history.book_id = book.id
+
+		WHERE %s
+
+		GROUP BY book.id
+		order by book.id
+	`, inject))
+	if err != nil {
+		checkErr(err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		if rows != nil {
+			err = rows.Scan(&book.Author_id, &book.Date, &book.Id, &book.Name, &book.Station_id, &book.Url, &book.Low_name, &book.Author_name, &book.Station_name, &book.Last_play, &book.Play_count)
+			if err != nil {
+				fmt.Println(err.Error())
+				return
 			}
+
+			return book, nil
 		}
 	}
 
 	return nil, fmt.Errorf("book not found")
 }
 
-func BookGetAll(arg interface{}) (books []*Book, err error) {
+func BookGetAll(arg interface{}, page, limit int) (books []*Book, err error) {
+
+	var inject string
+	books = make([]*Book, 0)	//[]
 
 	switch reflect.TypeOf(arg).String() {
 	case "*models.Author":
-		return  getAllByAuthor(arg.(*Author))
+		inject = fmt.Sprintf(`book.author_id = "%d"`, arg.(*Author).Id)
 	case "*models.Station":
-		return  getAllByStation(arg.(*Station))
+		inject = fmt.Sprintf(`book.station_id = "%d"`, arg.(*Author).Id)
 	default:
 		break
 	}
 
-	return
-}
+	if page > 0 {
+		page -= 1
+	} else {
+		page = 0
+	}
 
-func getAllByAuthor(author *Author) (books []*Book, err error) {
+	rows, err := db.Query(fmt.Sprintf(`
+		select book.*, a.name as author_name, s.name as station_name, history.date as last_play, count(history.date) as play_count
 
-	books = make([]*Book, 0)	//[]
+		from book
 
-	rows, err := db.Query(fmt.Sprintf(`SELECT * FROM book WHERE author_id=%d`, author.Id))
+		JOIN station as s on s.id = book.station_id
+		JOIN author as a on a.id = book.author_id
+		left JOIN history  history on history.book_id = book.id
+
+		WHERE %s
+
+		GROUP BY book.id
+		order by book.id
+
+		LIMIT "%d" OFFSET "%d"
+	`, inject, limit, page))
 	if err != nil {
 		checkErr(err)
 		return
@@ -168,30 +195,7 @@ func getAllByAuthor(author *Author) (books []*Book, err error) {
 
 		if rows != nil {
 			book := new(Book)
-			rows.Scan(&book.Id, &book.Author_id, &book.Name, &book.Low_name, &book.Date, &book.Station_id, &book.Url)
-			books = append(books, book)
-		}
-	}
-
-	return
-}
-
-func getAllByStation(station *Station) (books []*Book, err error) {
-
-	books = make([]*Book, 0)	//[]
-
-	rows, err := db.Query(fmt.Sprintf(`SELECT * FROM book WHERE station_id=%d`, station.Id))
-	if err != nil {
-		checkErr(err)
-		return
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-
-		if rows != nil {
-			book := new(Book)
-			rows.Scan(&book.Id, &book.Author_id, &book.Name, &book.Low_name, &book.Date, &book.Station_id, &book.Url)
+			rows.Scan(&book.Author_id, &book.Date, &book.Id, &book.Name, &book.Station_id, &book.Url, &book.Low_name, &book.Author_name, &book.Station_name, &book.Last_play, &book.Play_count)
 			books = append(books, book)
 		}
 	}

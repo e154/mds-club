@@ -2,8 +2,8 @@
 
 angular
   .module('appControllers')
-  .controller 'booksCtrl', ['$scope', '$rootScope', '$routeSegment', '$location', 'BooksResource', 'ngDialog'
-  ($scope, $rootScope, $routeSegment, $location, BooksResource, ngDialog) ->
+  .controller 'booksCtrl', ['$scope', '$rootScope', '$routeSegment', '$location', 'BooksResource', 'PlayerService'
+  ($scope, $rootScope, $routeSegment, $location, BooksResource, PlayerService) ->
 
     $scope.book_list = []
     $scope.total_items = 1
@@ -43,7 +43,7 @@ angular
 
           $location.path($routeSegment.getSegmentUrl('base.books', page: $scope.current_page, limit: $scope.items_per_page))
 
-          $scope.openPlayer($scope.book_list[0])
+#          $scope.openPlayer($scope.book_list[0])
       ,
         (response)=>
           console.log 'error:#{response}'
@@ -64,25 +64,8 @@ angular
 
     updateBooks()
 
-
-#    modal player
-    $scope.player = null
     $scope.openPlayer = (book)=>
-
-      $scope.book = book
-      if !$scope.player
-        $scope.player = ngDialog.open(
-          template: '/templates/playerModal.html'
-          controller: 'playerCtrl'
-          className: 'ngdialog-theme-player'
-          scope: $scope,
-          plain: false,
-          overlay: true,
-          showClose: false
-        )
-
-        $scope.player.closePromise.then (date)=>
-          $scope.player = null
+      PlayerService(book)
 
 #    $scope.$on '$locationChangeSuccess', ()=>
 #      updateBooks()

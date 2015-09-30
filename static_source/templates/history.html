@@ -1,3 +1,36 @@
 <div class="page">
-    <h3>История</h3>
+
+    <div layout="row" ng-if="total_items" style="margin-top: 92px;">
+        <table class="block">
+            <thead class="table_book_header">
+            <tr>
+                <td class="table_id_col">id</td>
+                <td class="table_book_col">книга</td>
+                <td class="table_author_col">автор</td>
+                <td style="min-width: 281px;">читалась</td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="story in history | orderBy:'-id'">
+                <td>{{$index + (current_page - 1) * items_per_page + 1}}</td>
+                <td><a href="" ng-click="openPlayer(story.book_id)" truncate-text="30">{{story.book_name}}</a></td>
+                <td><a ng-href="{{ 'base.books' | routeSegmentUrl: {page: 1, limit: 24, author: story.author_name} }}" target="_self" truncate-text="20">{{story.author_name}}</a></td>
+                <td>{{story.open_date | date:'HH:mm:ss dd-MM-yyyy'}}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div layout="row" ng-if="total_items">
+        <div class="block">Всего найдено: {{total_items}}</div>
+    </div>
+
+    <div layout="row" layout-align="center center" ng-if="history.length == 0">
+        <span class="block">Ни чего не найдено</span>
+    </div>
+
+    <div layout="row" layout-align="center center" ng-show="total_items > items_per_page">
+        <pagination boundary-links="true" total-items="total_items" items-per-page="items_per_page" max-size="max_size" ng-model="current_page" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></pagination>
+    </div>
+
 </div>

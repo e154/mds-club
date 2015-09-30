@@ -16,6 +16,8 @@
                     <dd ng-if="book.Date">{{book.Date | date}}</dd>
                     <dt>Станция:</dt>
                     <dd>{{book.Station_name}}</dd>
+                    <dt>Слушал:</dt>
+                    <dd>{{book.Last_play | date:'HH:mm:ss dd/MM/yy'}}</dd>
                 </dl>
             </div>
             <div flex>
