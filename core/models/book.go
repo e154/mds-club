@@ -17,6 +17,8 @@ type Book struct {
 	Url				string		`json: "url"`
 	Author_name 	string		`json: "author_name"`
 	Station_name 	string		`json: "station_name"`
+	Last_play	 	interface{}	`json: "last_play"`
+	Play_count 		int64		`json: "play_count"`
 }
 
 func (b *Book) Save() (int64, error) {
@@ -240,29 +242,43 @@ func BookFind(book, author string, page, limit int) (books []*Book, total_items 
 
 	// bookd page
 	query = fmt.Sprintf(`
-		select result.*, author.name as author_name , station.name as station_name
+		select book.*, a.name as author_name, s.name as station_name, history.date as last_play, count(history.date) as play_count
 
-		from
-		(
-			SELECT book.*
-			from book, author
-			WHERE  book.low_name LIKE "%s" and author.low_name like "%s" AND book.author_id=author.id
-		   order by book.id LIMIT "%d" OFFSET "%d"
-		) result
+		from book
+		JOIN station as s on s.id = book.station_id
+		JOIN author as a on a.id = book.author_id
+		left JOIN history  history on history.book_id = book.id
 
-		INNer JOIN author author on author.id = result.author_id
-		INNer JOIN station station on station.id = result.station_id
+		WHERE  book.low_name LIKE "%s"
+		and a.low_name like "%s"
+		AND book.author_id=a.id
+
+		GROUP BY book.id
+		order by book.id
+		LIMIT "%d" OFFSET "%d"
+
 	`, "%"+book+"%", "%"+author+"%", limit, page)
 	rows, err := db.Query(query)
 	if err != nil {
+		fmt.Println(err.Error())
 		return
 	}
 	defer rows.Close()
 
+	if err = rows.Err(); err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
 	for rows.Next() {
+		if rows.Err() != nil {
+			fmt.Println(rows.Err())
+		}
+
 		book := new(Book)
-		err = rows.Scan(&book.Author_id, &book.Date, &book.Id, &book.Name, &book.Station_id, &book.Url, &book.Low_name, &book.Author_name, &book.Station_name)
+		err = rows.Scan(&book.Author_id, &book.Date, &book.Id, &book.Name, &book.Station_id, &book.Url, &book.Low_name, &book.Author_name, &book.Station_name, &book.Last_play, &book.Play_count)
 		if err != nil {
+			fmt.Println(err.Error())
 			return
 		}
 
