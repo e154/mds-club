@@ -228,7 +228,7 @@ func (b *Book) Play() (err error) {
 func BookFind(book, author string, page, limit int) (books []*Book, total_items int32, err error) {
 
 	if page > 0 {
-		page -= 1
+		page = (page - 1) * limit
 	} else {
 		page = 0
 	}
