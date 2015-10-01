@@ -63,7 +63,7 @@ func (h *History) Remove(id int64) (err error) {
 func HistoryGetPage(page, limit int) (history []*HistoryRes, total_items int32, err error) {
 
 	if page > 0 {
-		page -= 1
+		page = (page - 1) * limit
 	} else {
 		page = 0
 	}

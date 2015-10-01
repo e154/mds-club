@@ -166,10 +166,10 @@ func AuthorGetAll() (authors []*Author, err error) {
 	return
 }
 
-func AuthorFind(name string, page, items_per_page int) (authors []*Author, total_items int32, err error) {
+func AuthorFind(name string, page, limit int) (authors []*Author, total_items int32, err error) {
 
 	if page > 0 {
-		page -= 1
+		page = (page - 1) * limit
 	} else {
 		page = 0
 	}
@@ -186,7 +186,7 @@ func AuthorFind(name string, page, items_per_page int) (authors []*Author, total
 		total_items++
 	}
 
-	rows, err := db.Query(fmt.Sprintf(`SELECT * FROM "author" WHERE "author"."low_name" LIKE '%s' LIMIT %d OFFSET %d`, "%"+name+"%", items_per_page, page))
+	rows, err := db.Query(fmt.Sprintf(`SELECT * FROM "author" WHERE "author"."low_name" LIKE '%s' LIMIT %d OFFSET %d`, "%"+name+"%", limit, page))
 	if err != nil {
 		return
 	}

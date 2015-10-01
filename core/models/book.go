@@ -142,6 +142,10 @@ func BookGet(val interface{}) (book *Book, err error) {
 				return
 			}
 
+			if book.Last_play == nil {
+				book.Last_play = ""
+			}
+
 			return book, nil
 		}
 	}
@@ -164,7 +168,7 @@ func BookGetAll(arg interface{}, page, limit int) (books []*Book, err error) {
 	}
 
 	if page > 0 {
-		page -= 1
+		page = (page - 1) * limit
 	} else {
 		page = 0
 	}
@@ -195,7 +199,16 @@ func BookGetAll(arg interface{}, page, limit int) (books []*Book, err error) {
 
 		if rows != nil {
 			book := new(Book)
-			rows.Scan(&book.Author_id, &book.Date, &book.Id, &book.Name, &book.Station_id, &book.Url, &book.Low_name, &book.Author_name, &book.Station_name, &book.Last_play, &book.Play_count)
+			err = rows.Scan(&book.Author_id, &book.Date, &book.Id, &book.Name, &book.Station_id, &book.Url, &book.Low_name, &book.Author_name, &book.Station_name, &book.Last_play, &book.Play_count)
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+
+			if book.Last_play == nil {
+				book.Last_play = ""
+			}
+
 			books = append(books, book)
 		}
 	}
@@ -284,6 +297,10 @@ func BookFind(book, author string, page, limit int) (books []*Book, total_items 
 		if err != nil {
 			fmt.Println(err.Error())
 			return
+		}
+
+		if book.Last_play == nil {
+			book.Last_play = ""
 		}
 
 		books = append(books, book)
