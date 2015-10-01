@@ -30,7 +30,7 @@ DROP TABLE IF EXISTS "book";
 CREATE TABLE "book"(
 	"author_id" Integer,
 	"date" Date,
-	"id" Integer NOT NULL PRIMARY KEY,
+	"id" Integer NOT NULL PRIMARY KEY AUTOINCREMENT,
 	"name" Text,
 	"station_id" Integer,
 	"url" Text,
@@ -44,7 +44,8 @@ CREATE TABLE "book"(
 		ON DELETE Cascade
 		ON UPDATE Cascade
 ,
-CONSTRAINT "Unique_2" UNIQUE ( "name" ) );
+CONSTRAINT "Unique_2" UNIQUE ( "name" ),
+CONSTRAINT "unique_id" UNIQUE ( "id" ) );
 
 CREATE INDEX "bookIdx" ON "book"( "name" );
 CREATE INDEX "bookIdx1" ON "book"( "date" );
@@ -76,6 +77,25 @@ CONSTRAINT "Unique_2" UNIQUE ( "url" ) );
 CREATE INDEX "fileIdx" ON "file"( "id", "book_id", "name", "size", "url" );
 
 -- ------------------------------------------
+-- Dump of "history"
+-- ------------------------------------------
+
+DROP TABLE IF EXISTS "history";
+
+CREATE TABLE "history"(
+	"id" Integer PRIMARY KEY AUTOINCREMENT,
+	"book_id" Integer,
+	"date" DateTime,
+	CONSTRAINT "lnk_history_book" FOREIGN KEY ( "book_id" ) REFERENCES "book"( "id" )
+		DEFERRABLE INITIALLY DEFERRED
+,
+CONSTRAINT "unique_id" UNIQUE ( "id" ) );
+
+CREATE INDEX "index_book_id" ON "history"( "book_id" );
+CREATE INDEX "index_data" ON "history"( "date" );
+CREATE INDEX "index_id" ON "history"( "id" );
+
+-- ------------------------------------------
 -- Dump of "station"
 -- ------------------------------------------
 
@@ -88,6 +108,8 @@ CONSTRAINT "stationUnique" UNIQUE ( "name" ) );
 
 CREATE INDEX "stationIdx" ON "station"( "id" );
 CREATE INDEX "stationIdx1" ON "station"( "name" );
+
+
 `
 
 func ResetDb() (err error) {
