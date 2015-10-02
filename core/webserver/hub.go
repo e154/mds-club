@@ -1,9 +1,10 @@
 package webserver
 
 import (
+	"github.com/e154/console"
 	"time"
 	"math/rand"
-    "fmt"
+	"fmt"
 )
 
 type hub struct {
@@ -12,6 +13,9 @@ type hub struct {
 
 	// входящие сообщения
 	broadcast chan []byte
+
+	// командный канал
+	command chan map[*Client][]byte
 
 	// запрос на регистранцию
 	Register chan *Client
@@ -23,7 +27,7 @@ type hub struct {
 	quit chan bool
 
 	// флаг, сигнализирует что служба сбора информации запущена
-	isProcRead bool
+//	isProcRead bool
 }
 
 func (h *hub) PushRoom() {}
@@ -31,17 +35,25 @@ func (h *hub) PushRoom() {}
 var H = &hub{
 	connections: make(map[*Client]bool),
 	broadcast:   make(chan []byte, maxMessageSize),
+	command:   	 make(chan map[*Client][]byte, maxMessageSize),
 	Register:    make(chan *Client, 1),
 	unregister:  make(chan *Client, 1),
 	quit:		 make(chan bool, 1),
-	isProcRead: false,
+//	isProcRead: false,
+}
+
+func (h *hub) Output(text []byte) {
+	H.broadcast <- text
 }
 
 func (h *hub) run() {
 
+	console := console.GetPtr()
+	console.Output(h)
+
 	quitAll := func() {
 		if len(h.connections) == 0 {
-			h.isProcRead = false
+//			h.isProcRead = false
 			h.quit <- true
 		}
 	}
@@ -57,11 +69,11 @@ func (h *hub) run() {
             fmt.Printf("total clients: %d\n", len(h.connections))
 
 			// при подулючении запустить, если не запущен сервис сбора информации
-			if !h.isProcRead {
-				h.isProcRead = true
+//			if !h.isProcRead {
+//				h.isProcRead = true
 //				go uptime()
 //				go timeinfo();
-			}
+//			}
 
 			// запрос Отменить регистрацию
 			// удалить запись о регистрации из массива
@@ -93,6 +105,10 @@ func (h *hub) run() {
 				}
 			}
 
+		case m := <-h.command:
+			for _, val := range m {
+				console.Exec(string(val))
+			}
 		}
 	}
 }

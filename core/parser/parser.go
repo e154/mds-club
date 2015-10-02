@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"github.com/e154/console"
 	"github.com/PuerkitoBio/goquery"
 	"../models"
 	"time"
@@ -17,7 +18,7 @@ const (
 )
 
 var (
-	total_elements int = 0
+	total_elements int = 1312
 	current_element int
 	totalChan chan int
 	statusChan chan int
@@ -127,7 +128,7 @@ func parseDate(val string) (time.Time, error) {
 	return time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC), nil
 }
 
-func scanCatalog(url string, start, stop int) error {
+func scanCatalog(url string, start, stop int, quit chan bool) error {
 
 	page, err := getDocument(url)
 	if err != nil {
@@ -298,12 +299,16 @@ func scanCatalog(url string, start, stop int) error {
 			return nil
 		}
 
+		if v, ok := <- quit; v && ok {
+			break
+		}
+
 		time.Sleep( time.Duration(SLEEP) * time.Millisecond)
 	}
 
 	next_url, b := getNextUrl(page)
 	if b {
-		if err := scanCatalog(next_url, start, stop); err != nil {
+		if err := scanCatalog(next_url, start, stop, quit); err != nil {
 			return err
 		}
 	}
@@ -346,7 +351,7 @@ func GetTotalElements(url string) (int, error) {
 	return total, nil
 }
 
-func Run(start, stop int) (chan bool, chan int, chan int, chan error) {
+func Run(start, stop int, quit chan bool) (chan bool, chan int, chan int, chan error) {
 
 	quitChan = make(chan bool, 1)
 	totalChan = make(chan int, 1)
@@ -362,14 +367,68 @@ func Run(start, stop int) (chan bool, chan int, chan int, chan error) {
 	totalChan <- total
 
 	current_element = 0
-	go func() {
-		scanCatalog(URL, start, stop)
+	go func(quit chan bool) {
+		scanCatalog(URL, start, stop, quit)
+		quitChan <- true
 		defer close(quitChan)
 		defer close(totalChan)
 		defer close(statusChan)
 		defer close(errorChan)
-		quitChan <- true
-	}()
+	}(quit)
 
 	return quitChan, totalChan, statusChan, errorChan
+}
+
+func init() {
+	c_ptr := console.GetPtr()
+	c_ptr.AddCommand("scan", func(key, value string, help *string){
+
+		if value == "help" {*help = "start scanning http://mds-club.ru, very slow process"}
+		usage_start := "usage: scan <start|stop> <start:int> <stop:int>"
+
+		cmd := strings.Split(value, " ")
+		if (cmd[0] == "start" && len(cmd) != 3) || (cmd[0] == "stop" && len(cmd) != 1) {
+			c_ptr.Printf(usage_start)
+			return
+		}
+
+		start, err := strconv.Atoi(cmd[1])
+		stop, err := strconv.Atoi(cmd[2])
+		if err != nil {
+			c_ptr.Printf(usage_start)
+			return
+		}
+
+		quit := make(chan bool, 1)
+
+		switch cmd[0] {
+		case "start":
+
+			go func(quit chan bool) {
+				quitChan, totalChan, statusChan, errorChan := Run(start, stop, quit)
+
+				var total int
+				for  {
+					select {
+					case current := <- statusChan:
+						c_ptr.Printf("{scan_status:{total:%d, current: %d}}", total, current)
+					case t := <- totalChan:
+						total = t
+					case err := <- errorChan:
+						c_ptr.Printf("{scan_error: %s}", err.Error())
+					case <- quitChan:
+						c_ptr.Printf("{scan_status: quit}")
+						return
+					default:
+					}
+				}
+			}(quit)
+
+		case "stop":
+			quit <- true
+		default:
+			break
+		}
+
+	})
 }

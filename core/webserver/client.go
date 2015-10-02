@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"encoding/json"
 	"github.com/gorilla/websocket"
+	"fmt"
 )
 
 // Client посредник в соединении между websocket и hub.
@@ -38,9 +39,20 @@ func (c *Client) ReadPump() {
 			if err != nil {
 				break
 			}
-			//c.username + "_" + time.Now().Format("15:04:05") + ":" + string(message)
-			j, _ := json.Marshal(&map[string]interface {}{"message": string(message)})
-		H.broadcast <- []byte(j)
+
+			// command unmarshal
+			command := make(map[string]string, 0)
+			err = json.Unmarshal(message, &command)
+			if err != nil {
+				fmt.Println("error:", err)
+			}
+
+			switch command["key"] {
+			case "command":
+				H.command <- map[*Client][]byte{c: []byte(command["value"]),}
+			case "broadcast":
+				H.broadcast <- []byte(command["value"])
+			}
 		}
 	}
 }
