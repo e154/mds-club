@@ -22,12 +22,6 @@ type hub struct {
 
 	// запрос Отменить регистрацию
 	unregister chan *Client
-
-	// выход для служб сбора информации
-	quit chan bool
-
-	// флаг, сигнализирует что служба сбора информации запущена
-//	isProcRead bool
 }
 
 func (h *hub) PushRoom() {}
@@ -38,8 +32,6 @@ var H = &hub{
 	command:   	 make(chan map[*Client][]byte, maxMessageSize),
 	Register:    make(chan *Client, 1),
 	unregister:  make(chan *Client, 1),
-	quit:		 make(chan bool, 1),
-//	isProcRead: false,
 }
 
 func (h *hub) Output(text []byte) {
@@ -53,8 +45,9 @@ func (h *hub) run() {
 
 	quitAll := func() {
 		if len(h.connections) == 0 {
-//			h.isProcRead = false
-			h.quit <- true
+			fmt.Println("quit all")
+			//...
+			fmt.Println("ok")
 		}
 	}
 
@@ -67,13 +60,6 @@ func (h *hub) run() {
 
             fmt.Printf("client register\n")
             fmt.Printf("total clients: %d\n", len(h.connections))
-
-			// при подулючении запустить, если не запущен сервис сбора информации
-//			if !h.isProcRead {
-//				h.isProcRead = true
-//				go uptime()
-//				go timeinfo();
-//			}
 
 			// запрос Отменить регистрацию
 			// удалить запись о регистрации из массива
@@ -106,6 +92,7 @@ func (h *hub) run() {
 			}
 
 		case m := <-h.command:
+			fmt.Println("command")
 			for _, val := range m {
 				console.Exec(string(val))
 			}
