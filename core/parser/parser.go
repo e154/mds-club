@@ -23,7 +23,8 @@ var (
 	totalChan chan int
 	statusChan chan int
 	errorChan chan error
-	quitChan chan bool
+	quitParserChan chan bool
+	status string = "stopped"//launched|stopped
 )
 
 type Element struct {
@@ -128,7 +129,7 @@ func parseDate(val string) (time.Time, error) {
 	return time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC), nil
 }
 
-func scanCatalog(url string, start, stop int, quit chan bool) error {
+func scanCatalog(url string, start, stop int) error {
 
 	page, err := getDocument(url)
 	if err != nil {
@@ -299,8 +300,10 @@ func scanCatalog(url string, start, stop int, quit chan bool) error {
 			return nil
 		}
 
-		if v, ok := <- quit; v && ok {
-			break
+		select {
+		case <-quitParserChan:
+			return fmt.Errorf("interrupt")
+		default:
 		}
 
 		time.Sleep( time.Duration(SLEEP) * time.Millisecond)
@@ -308,7 +311,7 @@ func scanCatalog(url string, start, stop int, quit chan bool) error {
 
 	next_url, b := getNextUrl(page)
 	if b {
-		if err := scanCatalog(next_url, start, stop, quit); err != nil {
+		if err := scanCatalog(next_url, start, stop); err != nil {
 			return err
 		}
 	}
@@ -351,40 +354,17 @@ func GetTotalElements(url string) (int, error) {
 	return total, nil
 }
 
-func Run(start, stop int, quit chan bool) (chan bool, chan int, chan int, chan error) {
-
-	quitChan = make(chan bool, 1)
-	totalChan = make(chan int, 1)
-	statusChan = make(chan int, 1)
-	errorChan = make(chan error, 1)
-
-	total, err := GetTotalElements(URL)
-	if err != nil {
-		errorChan <- err
-		quitChan <- true
-	}
-
-	totalChan <- total
-
-	current_element = 0
-	go func(quit chan bool) {
-		scanCatalog(URL, start, stop, quit)
-		quitChan <- true
-		defer close(quitChan)
-		defer close(totalChan)
-		defer close(statusChan)
-		defer close(errorChan)
-	}(quit)
-
-	return quitChan, totalChan, statusChan, errorChan
-}
-
 func init() {
+	quitParserChan = make(chan bool, 99)
+	statusChan = make(chan int)
+	totalChan = make(chan int)
+	errorChan = make(chan error)
+
 	c_ptr := console.GetPtr()
 	c_ptr.AddCommand("scan", func(key, value string, help *string){
 
 		if value == "help" {*help = "start scanning http://mds-club.ru, very slow process"}
-		usage_start := "usage: scan <start|stop> <start:int> <stop:int>"
+		usage_start := "usage: scan <start|stop:string> <start:int> <stop:int>"
 
 		cmd := strings.Split(value, " ")
 		if (cmd[0] == "start" && len(cmd) != 3) || (cmd[0] == "stop" && len(cmd) != 1) {
@@ -392,43 +372,78 @@ func init() {
 			return
 		}
 
-		start, err := strconv.Atoi(cmd[1])
-		stop, err := strconv.Atoi(cmd[2])
-		if err != nil {
-			c_ptr.Printf(usage_start)
-			return
+		info := func(s string) {
+			c_ptr.Printf("{\"scan_status\":{\"info\":\"%s\"}}", s)
 		}
 
-		quit := make(chan bool, 1)
+		launched := func() {
+			status = "launched"
+			c_ptr.Printf("{\"scan_status\":{\"status\":\"launched\"}}")
+		}
+
+		stopped := func() {
+			status = "stopped"
+			c_ptr.Printf("{\"scan_status\":{\"status\":\"stopped\"}}")
+		}
 
 		switch cmd[0] {
 		case "start":
 
-			go func(quit chan bool) {
-				quitChan, totalChan, statusChan, errorChan := Run(start, stop, quit)
+			start, err := strconv.Atoi(cmd[1])
+			stop, err := strconv.Atoi(cmd[2])
+			if err != nil {
+				c_ptr.Printf(usage_start)
+				return
+			}
 
-				var total int
-				for  {
-					select {
-					case current := <- statusChan:
-						c_ptr.Printf("{scan_status:{total:%d, current: %d}}", total, current)
-					case t := <- totalChan:
-						total = t
-					case err := <- errorChan:
-						c_ptr.Printf("{scan_error: %s}", err.Error())
-					case <- quitChan:
-						c_ptr.Printf("{scan_status: quit}")
-						return
-					default:
-					}
+			if status == "launched" { return }
+			launched()
+
+			current_element = 0
+			go func() {
+
+				info("get the number of records")
+				total, err := GetTotalElements(URL)
+				if err != nil {
+					errorChan <- err
+					return
 				}
-			}(quit)
+
+				totalChan <- total
+				info(fmt.Sprintf("total records: %d", total))
+
+				// scan
+				err = scanCatalog(URL, start, stop)
+				if err != nil {
+					errorChan <- err
+				}
+
+				stopped()
+			}()
 
 		case "stop":
-			quit <- true
+			if status != "launched" { return }
+			quitParserChan <- true
+		case "status":
+			c_ptr.Printf("{\"scan_status\":{\"status\":\"%s\"}}", status)
 		default:
-			break
 		}
-
 	})
+
+	go func() {
+		current_element = 0
+		var total int
+		for  {
+			select {
+			case current := <- statusChan:
+				c_ptr.Printf("{\"scan_status\":{\"total\":%d,\"current\":%d}}", total, current)
+			case t := <- totalChan:
+				total = t
+			case err := <- errorChan:
+				c_ptr.Printf("{\"scan_status\":{\"error\":\"%s\"}}", err.Error())
+			default:
+				time.Sleep(time.Millisecond * 500)
+			}
+		}
+	}()
 }

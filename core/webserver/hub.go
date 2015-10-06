@@ -92,7 +92,6 @@ func (h *hub) run() {
 			}
 
 		case m := <-h.command:
-			fmt.Println("command")
 			for _, val := range m {
 				console.Exec(string(val))
 			}
