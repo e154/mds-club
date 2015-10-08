@@ -1,4 +1,4 @@
-<div class="page">
+<div class="page" xmlns="http://www.w3.org/1999/html">
     <md-list>
         <md-list-item class="md-3-line">
             <div class="md-list-item-text">
@@ -10,7 +10,7 @@
                     <div class="block">{{total}}/{{current}}</div>
                     <md-button class="md-raised" ng-click="stopScan()">Остановить</md-button>
                 </div>
-                <md-button ng-show="status == 'stopped'" class="md-raised md-warn block" ng-click="startScan()">Выпустить кракина</md-button>
+                <md-button ng-show="status == 'stopped'" class="md-raised md-warn" ng-click="startScan()">Выпустить кракена</md-button>
             </div>
         </md-list-item>
         <md-list-item class="md-3-line">
@@ -18,16 +18,43 @@
                 <div class="block">
                     <h3 class="md-title">О программе</h3>
                 </div>
-                <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc,</p>
+                <p class="block">mds-club client: v1.0.0<br/>
+                    Страница проэкта: http://e154.ru/blog/tag/mds<br/>
+                    Автор: Filippov Alex aka &lt;delta54&gt; filippov.a@e154.ru</p>
+
+                <p class="block">Программа разработана чисто из академического интереса.<br/>
+                    На стеке технологий, таких как: Golang, Angular, Websocket, html5, jquery etc...<br/>
+                    И предназначена для дублирования базы данных аудио книг сайта mds-club.ru,
+                    для возможности удобного поиска, прослушивания, и ведения истории прослушанных книг.
+                    Файлы аудио книг остаются в облаке, и могут быть скачаны по требованию.</p>
             </div>
-            <md-divider></md-divider>
         </md-list-item>
         <md-list-item class="md-3-line">
             <div class="md-list-item-text">
                 <div class="block">
                     <h3 class="md-title">Лицензионное соглашение</h3>
                 </div>
-                <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc,</p>
+                <p class="block">The MIT License (MIT)</p>
+                <p class="block">Copyright (c) 2015 Filippov Alex</p>
+                <p class="block">
+                    Permission is hereby granted, free of charge, to any person obtaining a
+                    copy of this software and associated documentation files (the "Software"),
+                    to deal in the Software without restriction, including without limitation
+                    the rights to use, copy, modify, merge, publish, distribute, sublicense,
+                    and/or sell copies of the Software, and to permit persons to whom the
+                    Software is furnished to do so, subject to the following conditions:</p>
+                <p class="block">
+                    The above copyright notice and this permission notice shall be included in
+                    all copies or substantial portions of the Software.</p>
+                <p class="block">
+                    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+                    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+                    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+                    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+                    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+                    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+                    DEALINGS IN THE SOFTWARE.
+                </p>
             </div>
 
         </md-list-item>
