@@ -14,7 +14,7 @@ angular
     $scope.progress = 0
     socket = null
     start = 0
-    stop = 11
+    stop = 0
 
     ##################################
     # socket

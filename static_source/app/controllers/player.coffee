@@ -19,16 +19,20 @@ angular
     }
 
     addToHistory = (id)=>
-      HistoryResource.post
-        'a1': 'book~' + id
-      ,
-        {}
-      ,
-        (data)=>
-          #
-      ,
-        (response)=>
-          console.log 'error:#{response}'
+      $timeout ()->
+        HistoryResource.post
+          'a1': 'book~' + id
+        ,
+          {}
+        ,
+          (data)=>
+            #
+        ,
+          (response)=>
+            console.log 'error:#{response}'
+#      add to history after 60sec
+      , 60000
+
 
 #   player init
     $timeout ()->
