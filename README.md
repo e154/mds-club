@@ -28,6 +28,14 @@ git clone git@github.com:e154/mds-club.git
 cd mds-club	
 make clean && make
 ```
+
+#### Запуск после сборки
+
+```bash
+cd build
+./mds
+```
+
 на выходе получаем deb пакет, который устанавливаем системным пакетным менеджером.
 
 #### Зависимости
