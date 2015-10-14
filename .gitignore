@@ -55,10 +55,10 @@ static_source/bower_components
 *.o
 *.a
 *.deb
-/db/mds.db
-/mds
+moc_*.cpp
+*.tar.gz
+/mds-club
 /node_modules
 /static_source/js
 /static_source/css
-moc_*.cpp
 /db/mds.db-journal
