@@ -41,7 +41,6 @@ cd build
 #### Зависимости
 
 ```bash
-sudo apt-get install qt5-default
 github.com/PuerkitoBio/goquery
 github.com/e154/console
 github.com/gorilla/pat
