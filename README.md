@@ -51,4 +51,4 @@ golang.org/x/net/html/charset
 
 #### LICENSE
 
-Coffee Break is licensed under the [MIT License (MIT)](https://github.com/e154/mds-club/blob/master/LICENSE).
+mds-club client is licensed under the [MIT License (MIT)](https://github.com/e154/mds-club/blob/master/LICENSE).
