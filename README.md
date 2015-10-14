@@ -42,8 +42,12 @@ cd build
 
 ```bash
 sudo apt-get install qt5-default
-go get github.com/mattn/go-sqlite3
-go get github.com/gorilla/websocket
+github.com/PuerkitoBio/goquery
+github.com/e154/console
+github.com/gorilla/pat
+github.com/gorilla/websocket
+github.com/mattn/go-sqlite3
+golang.org/x/net/html/charset
 ```
 
 #### LICENSE
